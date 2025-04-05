@@ -1,0 +1,420 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  
+  body {
+    background-color: #121212;
+    color: white;
+    padding: 20px;
+  }
+  
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #121212;
+    border-radius: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  .logo-icon {
+    color: #8875FF;
+    margin-right: 10px;
+    font-size: 28px;
+  }
+  
+  .search-bar {
+    background-color: #252525;
+    border-radius: 20px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    width: 300px;
+  }
+  
+  .search-bar input {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 5px;
+    flex: 1;
+    outline: none;
+  }
+  
+  .user-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .icon-button {
+    background-color: #252525;
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .sidebar {
+    background-color: #121212;
+    width: 220px;
+    position: fixed;
+    height: calc(100vh - 40px);
+    left: 20px;
+    top: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .sidebar-item:hover {
+    background-color: #252525;
+  }
+  
+  .sidebar-item.active {
+    background-color: #252525;
+  }
+  
+  .main-content {
+    margin-left: 220px;
+    padding: 20px;
+  }
+  
+  .room-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  
+  .room-tab {
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .room-tab.active {
+    background-color: #8875FF25;
+    color: #8875FF;
+  }
+  
+  .add-button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .add-device-button {
+    background-color: #8875FF25;
+    color: #8875FF;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .air-conditioner-card {
+    background-color: #252525;
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 26px;
+  }
+  
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #3E3E3E;
+    border-radius: 34px;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #8875FF;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+  
+  .temperature {
+    font-size: 48px;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+  
+  .temperature-caption {
+    text-align: center;
+    color: #999;
+    margin-bottom: 20px;
+  }
+  
+  .temperature-slider {
+    width: 100%;
+    margin: 20px 0;
+  }
+  
+  .temperature-range {
+    display: flex;
+    justify-content: space-between;
+    color: #999;
+    font-size: 14px;
+  }
+  
+  .mode-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .mode-button {
+    background-color: #3E3E3E;
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .mode-button.active {
+    background-color: #8875FF;
+  }
+  
+  .usage-card {
+    background-color: #121212;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  
+  .usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .usage-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  
+  .usage-stat {
+    text-align: center;
+  }
+  
+  .usage-value {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .usage-label {
+    color: #999;
+    font-size: 14px;
+  }
+  
+  .chart-container {
+    height: 150px;
+    width: 100%;
+    position: relative;
+  }
+  
+  .chart-bar {
+    position: absolute;
+    bottom: 0;
+    width: 16px;
+    background-color: #3E3E3E;
+    border-radius: 4px 4px 0 0;
+  }
+  
+  .chart-bar.active {
+    background-color: #8875FF50;
+  }
+  
+  .chart-labels {
+    display: flex;
+    justify-content: space-between;
+    color: #999;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  .devices-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 30px;
+  }
+  
+  .device-card {
+    background-color: #252525;
+    border-radius: 15px;
+    padding: 15px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 120px;
+  }
+  
+  .device-icon {
+    background-color: #121212;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  
+  .device-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .device-status {
+    color: #999;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  
+  .device-power {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    color: #999;
+  }
+  
+  .light-controls {
+    background-color: #121212;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  
+  .light-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .light-name {
+    font-weight: bold;
+  }
+  
+  .light-brightness {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .brightness-dots {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #999;
+  }
+  
+  .dot.active {
+    background-color: white;
+  }
+  
