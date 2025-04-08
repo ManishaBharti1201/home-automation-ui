@@ -33,7 +33,6 @@
   
   .app-container {
     max-width: 1200px;
-    padding: 20px;
     background-color: #121212;
     border-radius: 20px;
   }
@@ -42,13 +41,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
   }
   
   .logo {
     display: flex;
     align-items: center;
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     font-weight: bold;
   }
   
@@ -65,7 +63,7 @@
   }
 
   .date-time {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: white;
     font-weight: bold;
     margin-right: 20px;
@@ -139,8 +137,9 @@
   }
   
   .main-content {
-    margin-left: 150px;
     padding: 20px;
+    border-radius: 2%;
+    margin: 20px 20px 20px 170px;
   }
   
   .room-tabs {
@@ -185,7 +184,7 @@
   
   .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
   
