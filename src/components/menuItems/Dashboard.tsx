@@ -1,24 +1,45 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import LivingRoom from "../dashboard/LivingRoom";
 import Aquarium from "../dashboard/Aquarium";
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  isDarkMode: boolean; // Define the type for the isDarkMode prop
+}
+
+const Dashboard: React.FC <DashboardProps> = ({ isDarkMode }) => {
   const [rooms, setRooms] = useState<string[]>([
     "Living Room",
     "Aquarium",
-    "Garage",
   ]);
   const [activeRoom, setActiveRoom] = useState(rooms[0]);
   const [isAddingRoom, setIsAddingRoom] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
+  const [Devices, setDevices] = useState<any[]>([]); // State for Living Room devices
+  
+
+  useEffect(() => {
+    // Connect to the SSE endpoint
+    const eventSource = new EventSource("http://localhost:5000/api/device-status");
+
+    // Listen for Living Room device updates
+    eventSource.addEventListener("livingRoomDevices", (event: any) => {
+      const data = JSON.parse(event.data);
+      setDevices(data);
+    });
+
+    // Cleanup the EventSource connection on component unmount
+    return () => {
+      eventSource.close();
+    };
+  }, []);
 
   const renderRoomContent = () => {
     switch (activeRoom) {
       case "Living Room":
-        return <LivingRoom />;
+        return <LivingRoom isDarkMode={isDarkMode} devices ={Devices}/>;
       case "Aquarium":
-        return <Aquarium   />;
+        return <Aquarium  devices ={Devices} />;
       case "Garage":
         return <div>Garage Component Coming Soon!</div>; // Placeholder for Garage
       default:

@@ -5,24 +5,29 @@ import Usage from "./menuItems/Usage"; // Import the Usage component
 import Security from "./menuItems/Security"; // Import the Security component
 import { useEffect } from "react";
 import { Settings } from "lucide-react";
-import { fetchWeatherApi } from "openmeteo";
 import Weather from "./apis/Weather";
 
 const Home: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState<string>("Dashboard");
   const [currentDateTime, setCurrentDateTime] = useState<string>("");
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // State for theme toggle
-  const [weather, setWeather] = useState<{ condition: string; temperature: string }>({
-    condition: "Loading...",
-    temperature: "--°C",
-  });
+  const [batteryLevel, setBatteryLevel] = useState<number | null>(null); // State for battery level
+  const [isCharging, setIsCharging] = useState<boolean | null>(null); // State for charging status
 
+  const getBatteryIcon = () => {
+    if (batteryLevel === null) return "🔋"; // Default icon if battery status is unavailable
+    if (isCharging) return "⚡"; // Charging icon
+    if (batteryLevel > 80) return "🔋"; // Full battery
+    if (batteryLevel > 50) return "🔋"; // Medium battery
+    if (batteryLevel > 20) return "🪫"; // Low battery
+    return "🪫"; // Critical battery
+  };
 
   useEffect(() => {
     // Automatically set theme based on time
     const currentHour = new Date().getHours();
     if (currentHour >= 6 && currentHour < 18) {
-      setIsDarkMode(false); // Light mode during the day (6 AM to 6 PM)
+      setIsDarkMode(true); // Light mode during the day (6 AM to 6 PM)
     } else {
       setIsDarkMode(true); // Dark mode during the night (6 PM to 6 AM)
     }
@@ -48,24 +53,44 @@ const Home: React.FC = () => {
     return () => clearInterval(interval); // Cleanup interval on component unmount
   }, []);
 
+  useEffect(() => {
+    // Fetch battery status using the Battery Status API
+    const fetchBatteryStatus = async () => {
+      if ("getBattery" in navigator) {
+        const battery = await (navigator as any).getBattery();
+        setBatteryLevel(Math.round(battery.level * 100)); // Convert battery level to percentage
+        setIsCharging(battery.charging);
+
+        // Add event listeners to update battery status dynamically
+        battery.addEventListener("levelchange", () =>
+          setBatteryLevel(Math.round(battery.level * 100))
+        );
+        battery.addEventListener("chargingchange", () =>
+          setIsCharging(battery.charging)
+        );
+      }
+    };
+
+    fetchBatteryStatus();
+  }, []);
+
   const getGreeting = () => {
     const currentHour = new Date().getHours();
-    console.log(currentHour);
     if (currentHour < 12) {
-      return "Good Morning Bhanu";
+      return "Good Morning Bhanu & Family";
     } else if (currentHour < 15) {
-      return "Good Afternoon Bhanu";
+      return "Good Afternoon Bhanu & Family";
     } else if (currentHour < 20) {
-      return "Good Evening Bhanu";
+      return "Good Evening Bhanu & Family";
     } else {
-      return "Good Night Bhanu";
+      return "Good Night Bhanu & Family";
     }
   };
 
   const renderContent = () => {
     switch (selectedMenu) {
       case "Dashboard":
-        return <Dashboard />;
+        return <Dashboard isDarkMode={isDarkMode} />;
       case "Usage":
         return <Usage />;
       case "Security":
@@ -73,7 +98,7 @@ const Home: React.FC = () => {
       case "Setting":
         return <Settings />;
       default:
-        return <Dashboard />;
+        return <Dashboard isDarkMode={isDarkMode} />;
     }
   };
 
@@ -99,11 +124,13 @@ const Home: React.FC = () => {
             {isDarkMode ? "🌙" : "🌞"}
           </button>
           <button className="icon-button">🔔</button>
-          <div className="user-avatar">B</div>
+          <div className="user-avatar" style={{ fontSize: "0.8rem" }}>
+            {getBatteryIcon()} {batteryLevel !== null ? `${batteryLevel}%` : ""}
+          </div>
         </div>
       </div>
 
-      <div className="main-content">
+      <div className={`main-content ${isDarkMode ? "dark-mode" : "light-mode"}`}>
         <div className="sidebar">
           <div
             className={`sidebar-item ${selectedMenu === "Dashboard" ? "active" : ""}`}
