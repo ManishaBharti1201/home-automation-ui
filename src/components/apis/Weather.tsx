@@ -15,7 +15,7 @@ const Weather: React.FC = () => {
 
     const weatherCodeMapping: { [key: string]: { image: string; description: string } } = {
         "0": { image: require("../../assets/weather/clear.png"), description: "Clear sky" },
-        "01": { image: require("../../assets/weather/few-clouds.png"), description: "Few clouds" },
+        "1": { image: require("../../assets/weather/few-clouds.png"), description: "Few clouds" },
         "45": { image: require("../../assets/weather/fog.png"), description: "Scattered clouds" },
         "51": { image: require("../../assets/weather/fog.png"), description: "Broken clouds" },
         "56": { image: require("../../assets/weather/fog.png"), description: "Shower rain" },
@@ -56,16 +56,18 @@ const Weather: React.FC = () => {
 
                 // Extract temperature and weather code
                 const temperature2m = hourly?.variables(0)?.valuesArray();
-                const weatherCode = hourly?.variables(1)!.valuesArray()!; // Replace with actual weather_code from the API response
+                const weatherCode = hourly?.variables(1)?.valuesArray(); // Replace with actual weather_code from the API response
                 
 
-                const weatherCodeValue = weatherCode[0]// Extract the first value and convert to string
+                let weatherCodeValue = weatherCode && weatherCode.length > 0 ? weatherCode[0] : "0"; // Extract the first value or default to "0"
+                if (weatherCodeValue == 2 || weatherCodeValue == 3 || weatherCodeValue == 1) {
+                    weatherCodeValue = 1; // Clear sky
+                }
                 const weatherDetails = weatherCodeMapping[weatherCodeValue] || {
                     image: "",
                     night: "",
                     description: "Unknown",
                 };
-                console.log(weatherDetails.image);
                 setWeather({
                     condition: weatherDetails.description,
                     temperature: temperature2m ? `${Math.round(temperature2m[0])}°C` : "--°C",
