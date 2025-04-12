@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import food from "../../assets/food-button.png"; // Import the food button image
+import food from "../../assets/fish-food.png"; // Import the food button image
+import fishFood from "../../assets/fish-food.png"; // Import the fish food image
 
 interface AquariumProps {
     devices: any[];
@@ -162,10 +163,9 @@ const Aquarium: React.FC<AquariumProps> = ({ devices }) => {
                             onClick={handleFoodGiven}
                             style={{
                                 position: "absolute",
-                                top: "15px",
-                                right: "15px",
-                                background: "white",
-                                padding: "5px",
+                                top: "12px",
+                                right: "12px",
+                                background: "transparent",                               
                                 borderRadius: "30%",
                                 border: "none",
                                 cursor: "pointer",
@@ -174,7 +174,7 @@ const Aquarium: React.FC<AquariumProps> = ({ devices }) => {
                             <img
                                 src={food}
                                 alt="Food"
-                                style={{ width: "24px", height: "24px" }}
+                                style={{ width: "40px", height: "40px" }}
                             />
                         </button>
                     </div>

@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import LivingRoom from "../dashboard/LivingRoom";
+import LivingRoom from "../dashboard/livingRoom/LivingRoom";
 import Aquarium from "../dashboard/Aquarium";
-import Patna from "../dashboard/Patna";
 
 interface DashboardProps {
   isDarkMode: boolean; // Define the type for the isDarkMode prop
@@ -42,8 +41,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
         return <LivingRoom isDarkMode={isDarkMode} devices={Devices} />;
       case "Aquarium":
         return <Aquarium devices={Devices} />;
-      case "Patna":
-        return <Patna url={"https://web.ezykam.com/login"} />; // Placeholder for Garage
       default:
         return <div>Select a room to view its content.</div>;
     }
@@ -57,7 +54,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
     } else if (rooms.includes(newRoomName)) {
       alert("Room already exists!");
     } else {
-      alert("Room name cannot be empty!");
+      alert("Room name cannot be empty!");  
     }
   };
 
@@ -95,7 +92,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
       </div>
       <div className="room-content">{renderRoomContent()}</div>
     </div>
-
   );
 };
 

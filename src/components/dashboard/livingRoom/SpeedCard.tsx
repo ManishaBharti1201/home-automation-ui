@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import wifi from "../../assets/wifi/wifi.png";
-import noWifi from "../../assets/wifi/no-wifi.png";
+import wifi from "../../../assets/wifi/wifi.png";
+import noWifi from "../../../assets/wifi/no-wifi.png";
 
 const SpeedCard = () => {
-    const [speed, setSpeed] = useState({ download: 0, upload: 0 });
+    const [, setSpeed] = useState({ download: 0, upload: 0 });
     const [isOnline, setIsOnline] = useState<boolean>(true); // State to track internet status
 
     const fetchSpeed = async () => {
@@ -43,21 +43,16 @@ const SpeedCard = () => {
     }, []);
 
     return (
-        <div
-            className="device-card"
+        <div className="device-card"
             style={{
                 backgroundColor: isOnline ? "green" : "#C41E3A", // Change background color based on online status
-                color: "white", // Ensure text is visible on both red and green backgrounds
-                padding: "16px",
-                borderRadius: "8px",
-                textAlign: "center",
-            }}
-        >
-            <div >
+                color: "white" // Ensure text is visible on both red and green backgrounds                
+            }}>
+            <div className="device-icon" style={{  borderRadius: "10px" }}>
                 <img
                     src={isOnline ? wifi : noWifi}
                     alt={isOnline ? "WiFi Icon" : "No WiFi Icon"}
-                    style={{ width: "40px", height: "40px" }}
+                    style={{ width: "20px", height: "20px" }}
                 />
             </div>
             <div className="device-name">WiFi</div>

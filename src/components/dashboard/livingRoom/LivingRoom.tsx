@@ -1,7 +1,9 @@
 import React from 'react';
-import { useState } from "react";
-import SpeedCard from '../apis/SpeedCard';
-import SpotifyCard from '../apis/SpotifyCard';
+import SpeedCard from './SpeedCard';
+import SpotifyCard from './SpotifyCard';
+import recycle from  '../../../assets/recycle.png'; // Import your CSS file for styling
+import trash from '../../../assets/trash.png'; // Import your CSS file for styling
+
 
 interface LivingRoomProps {
     isDarkMode: boolean;
@@ -74,10 +76,44 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode,devices }) => {
                         <span className="slider"></span>
                     </label>
                 </div>
-                <SpotifyCard />
-
+                {/* <SpotifyCard /> */}
+                <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+                    <div className="device-icon">
+                        <img
+                            src= {recycle}
+                            alt="Spotify Icon"
+                            style={{ width: "20px", height: "20px" }}
+                        />
+                    </div>
+                    <div className="device-name">Recycle</div>
+                    <div className="device-status">Last Service:</div>
+                    <div className="device-power">07/04, 11:30</div>
+                    <label
+                        className="toggle-switch"
+                        style={{ position: "absolute", top: "15px", right: "15px" }}
+                    >
+                       04/12 11:40pm
+                    </label>
+                </div>
+                <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+                <div className="device-icon">
+                        <img
+                            src= {trash}
+                            alt="Spotify Icon"
+                            style={{ width: "20px", height: "20px" }}
+                        />
+                    </div>
+                    <div className="device-name">Trash</div>
+                    <div className="device-status">Last Service:</div>
+                    <div className="device-power">07/04, 11:30</div>
+                    <label
+                        className="toggle-switch"
+                        style={{ position: "absolute", top: "15px", right: "15px" }}
+                    >
+                       04/12 11:40pm
+                    </label>
+                </div>
             </div>
-
         </div>
     );
 };

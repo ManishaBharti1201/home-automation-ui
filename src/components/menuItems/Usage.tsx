@@ -1,122 +1,119 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import axios from 'axios';
+
+// Register required Chart.js components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Usage: React.FC = () => {
+  const [utilityData, setUtilityData] = useState<{
+    electricity: number[];
+    gas: number[];
+    water: number[];
+  }>({
+    electricity: [],
+    gas: [],
+    water: [],
+  });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchUtilityData = async () => {
+      try {
+        const response = await axios.get('/api/utility-bills'); // Replace with your actual API endpoint
+        const data = response.data as {
+          electricity: number[];
+          gas: number[];
+          water: number[];
+        };
+        setUtilityData(data);
+      } catch (error) {
+        console.error('Error fetching utility data:', error);
+        console.log("Set dummy data for demonstration");
+        setUtilityData({
+          electricity: [120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230],
+          gas: [80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135],
+          water: [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105],
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUtilityData();
+  }, []);
+
+  const chartData = {
+    labels: [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ],
+    datasets: [
+      {
+        label: 'Electricity (kWh)',
+        data: utilityData.electricity,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: false,
+      },
+      {
+        label: 'Gas (m³)',
+        data: utilityData.gas,
+        borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        fill: false,
+      },
+      {
+        label: 'Water (Liters)',
+        data: utilityData.water,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        fill: false,
+      },
+    ],
+  };
+
   return (
     <div>
-      <h3 style={{ margin: "30px 0 20px" }}>Utility used Over an Year</h3>
-      <div
-        className="dashboard-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          margin: "20px 0",
-        }}
-      >
-      </div>
-
-      <div className="dashboard-grid">
-        <div className="usage-card">
-
-          <div className="usage-stats">
-            <div className="usage-stat">
-              <div className="usage-value">35.02Kwh</div>
-              <div className="usage-label">Total spend</div>
-            </div>
-            <div className="usage-stat">
-              <div className="usage-value">32h</div>
-              <div className="usage-label">Total hours</div>
-            </div>
-          </div>
-
-          <div className="chart-container">
-            <div
-              className="chart-bar"
-              style={{ height: "30%", left: "0%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "40%", left: "7%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "60%", left: "14%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "50%", left: "21%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "45%", left: "28%" }}
-            ></div>
-            <div
-              className="chart-bar active"
-              style={{ height: "90%", left: "35%" }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-20px",
-                  left: "-8px",
-                  fontSize: "10px",
-                  color: "#8875FF",
-                }}
-              >
-                30kw
-              </span>
-            </div>
-            <div
-              className="chart-bar"
-              style={{ height: "40%", left: "42%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "60%", left: "49%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "50%", left: "56%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "70%", left: "63%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "40%", left: "70%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "50%", left: "77%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "40%", left: "84%" }}
-            ></div>
-            <div
-              className="chart-bar"
-              style={{ height: "80%", left: "91%" }}
-            ></div>
-          </div>
-
-          <div className="chart-labels">
-            <span></span>
-            <span>10:00</span>
-            <span>11:00</span>
-            <span>12:00</span>
-            <span>13:00</span>
-            <span>14:00</span>
-            <span>15:00</span>
-            <span>16:00</span>
-            <span>17:00</span>
-            <span>18:00</span>
-          </div>
-        </div>
-      </div>
-
-
-
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <Line
+          data={chartData}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Monthly Utility Bills (Electricity, Gas, Water)',
+              },
+            },
+          }}
+        />
+      )}
     </div>
   );
 };
