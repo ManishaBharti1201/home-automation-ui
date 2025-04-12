@@ -5,7 +5,7 @@ import Usage from "./menuItems/Usage"; // Import the Usage component
 import Security from "./menuItems/Security"; // Import the Security component
 import { useEffect } from "react";
 import { Settings } from "lucide-react";
-import Weather from "./apis/Weather";
+import Weather from "./dashboard/Weather"; // Import the Weather component
 
 const Home: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState<string>("Dashboard");
@@ -105,11 +105,8 @@ const Home: React.FC = () => {
   return (
     <div className={`app-container ${isDarkMode ? "dark-mode" : "light-mode"}`}>
       <div className="header">
-        <div className="weather">
-          {/* Replace with a valid Weather component or remove */}
-          <Weather />
-
-        </div>
+        {/* Replace with a valid Weather component or remove */}
+        <Weather />
         <div className="logo">
           {getGreeting()}
         </div>
@@ -124,7 +121,7 @@ const Home: React.FC = () => {
             {isDarkMode ? "🌙" : "🌞"}
           </button>
           <button className="icon-button">🔔</button>
-          <div className="user-avatar" style={{ fontSize: "0.8rem" }}>
+          <div className="user-avatar" style={{ fontSize: "0.8rem", textAlign: "center" }}>
             {getBatteryIcon()} {batteryLevel !== null ? `${batteryLevel}%` : ""}
           </div>
         </div>

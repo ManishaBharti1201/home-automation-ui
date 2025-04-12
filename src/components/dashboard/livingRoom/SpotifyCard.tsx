@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { SkipBack, SkipForward, Pause, Play } from 'lucide-react';
-import spotify from '../../assets/spotify.png'; // Import the Spotify logo
+import spotify from '../../../assets/spotify.png'; // Import the Spotify logo
 
 interface SpotifyTrack {
     name: string;
@@ -24,7 +24,7 @@ const SpotifyCard: React.FC<SpotifyCardProps> = ({
     duration = 195, // 3:15 in seconds
     albumArt = spotify
 }) => {
-    const [track, setTrack] = useState<SpotifyTrack | null>(null);
+    const [, setTrack] = useState<SpotifyTrack | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
     const fetchCurrentTrack = async () => {
@@ -73,7 +73,7 @@ const SpotifyCard: React.FC<SpotifyCardProps> = ({
             backgroundSize: '50% 100%', // Ensure the image covers the entire card
             backgroundPosition: 'right', // Center the image
             backgroundRepeat: 'no-repeat',
-             // Prevent the image from repeating
+            // Prevent the image from repeating
             padding: '16px',
             borderRadius: '16px',
             boxShadow: '0 4px 8px rgba(168, 56, 56, 0.2)',
@@ -91,8 +91,8 @@ const SpotifyCard: React.FC<SpotifyCardProps> = ({
                 }}
             ></div>
             <div className="bg-teal-600 p-6 rounded-3xl shadow-xl max-w-md mx-auto">
-                <div className="device-name">Garage Lights</div>
-                <div className="device-status">Active for 3 hours</div>
+                <div className="device-name">{songName}</div>
+                <div className="device-status">{artistName}</div>
 
                 <div className="device-status">
                     <button className="text-white focus:outline-none">
