@@ -1,187 +1,192 @@
 import React, { useEffect, useState } from "react";
 import food from "../../assets/fish-food.png"; // Import the food button image
-import fishFood from "../../assets/fish-food.png"; // Import the fish food image
 
 interface AquariumProps {
-    devices: any[];
+  event: string;
 }
 
-const Aquarium: React.FC<AquariumProps> = ({ devices }) => {
-    const [lastFoodGiven, setLastFoodGiven] = useState<string>("March 02"); // Default last food given date
-    const [backgroundColor, setBackgroundColor] = useState<string>("#252525"); // State to track the current background color
+const Aquarium: React.FC<AquariumProps> = ({ event }) => {
+  const [lastFoodGiven, setLastFoodGiven] = useState<string>("March 02"); // Default last food given date
+  const [backgroundColor, setBackgroundColor] = useState<string>("#252525"); // State to track the current background color
+  const [switchStates, setSwitchStates] = useState({
+    aquaLight: false,
+    filter: true,
+    pump: true,
+    heater: true,
+  });
 
-    const handleFoodGiven = () => {
-        const today = new Date();
-        const formattedDate = today.toLocaleDateString("en-US", {
-            month: "long",
-            day: "2-digit",
-        });
-        setLastFoodGiven(formattedDate); // Update the last food given date
-        // Trigger blinking effect
-        let isBlue = false;
-        const interval = setInterval(() => {
-            setBackgroundColor(isBlue ? "#252525" : "#8875FF");
-            isBlue = !isBlue;
-        }, 500); // Toggle every 500ms
+  useEffect(() => {
+    if (event) {
+      try {
+        //const parsedEvent = JSON.parse(event); // Parse the event data
+        console.log("Updating aquarium events:", event);
 
-        setTimeout(() => {
-            clearInterval(interval); // Stop toggling after 5 seconds
-            setBackgroundColor("#252525"); // Reset to default color
-        }, 5000);
+        // Update the state based on the event data
+        setSwitchStates((prevState) => ({
+          ...prevState,
+          // aquaLight: parsedEvent.aquaLight ?? prevState.aquaLight,
+          // filter: parsedEvent.filter ?? prevState.filter,
+          // pump: parsedEvent.pump ?? prevState.pump,
+          // heater: parsedEvent.heater ?? prevState.heater,
+        }));
+      } catch (error) {
+        console.error("Error parsing event data:", error);
+      }
+    }
+  }, [event]); // Re-run the effect whenever the `event` prop changes
 
-        // Play voice message
-        const utterance = new SpeechSynthesisUtterance("Giving food now");
-        speechSynthesis.speak(utterance);
-    };
+  const handleToggle = (device: keyof typeof switchStates) => {
+    setSwitchStates((prevState) => ({
+      ...prevState,
+      [device]: !prevState[device],
+    }));
+  };
 
-    useEffect(() => {
-        const scheduleFoodGiven = () => {
-            const now = new Date();
-            const targetTime = new Date();
+  const handleFoodGiven = () => {
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString("en-US", {
+      month: "long",
+      day: "2-digit",
+    });
+    setLastFoodGiven(formattedDate); // Update the last food given date
+    // Trigger blinking effect
+    let isBlue = false;
+    const interval = setInterval(() => {
+      setBackgroundColor(isBlue ? "#252525" : "#8875FF");
+      isBlue = !isBlue;
+    }, 500); // Toggle every 500ms
 
-            // Set target time to 8:30 AM
-            targetTime.setHours(8, 30, 0, 0);
+    setTimeout(() => {
+      clearInterval(interval); // Stop toggling after 5 seconds
+      setBackgroundColor("#252525"); // Reset to default color
+    }, 5000);
 
-            // Find the next Monday, Wednesday, or Friday
-            let dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-            while (![1, 3, 5].includes(dayOfWeek) || now > targetTime) {
-                targetTime.setDate(targetTime.getDate() + 1); // Move to the next day
-                dayOfWeek = targetTime.getDay();
-            }
+    // Play voice message
+    const utterance = new SpeechSynthesisUtterance("Giving food now");
+    speechSynthesis.speak(utterance);
+  };
 
-            // Calculate the time difference in milliseconds
-            const timeUntilTarget = targetTime.getTime() - now.getTime();
+  return (
+    <div>
+      <div
+        className="dashboard-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "20px 0",
+        }}
+      >
+        <h2>Aquarium</h2>
+        <button className="add-device-button">+ Add Device</button>
+      </div>
 
-            // Schedule the first call to handleFoodGiven
-            const timeout = setTimeout(() => {
-                handleFoodGiven();
-
-                // After the first call, set an interval to call it weekly on Mon, Wed, and Fri
-                setInterval(() => {
-                    const today = new Date();
-                    const currentDay = today.getDay();
-                    const currentTime = today.getHours() * 60 + today.getMinutes();
-
-                    // Check if it's 8:30 AM on Mon, Wed, or Fri
-                    if ([1, 3, 5].includes(currentDay) && currentTime === 8 * 60 + 30) {
-                        handleFoodGiven();
-                    }
-                }, 24 * 60 * 60 * 1000); // Check daily
-            }, timeUntilTarget);
-
-            return () => clearTimeout(timeout); // Cleanup timeout on component unmount
-        };
-
-        scheduleFoodGiven();
-    }, []);
-
-    return (
-        <div>
-            <div
-                className="dashboard-header"
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    margin: "20px 0",
-                }}
-            >
-                <h2>Aquarium</h2>
-                <button className="add-device-button">+ Add Device</button>
-            </div>
-
-            <div>
-                <div className="devices-grid">
-                    <div className="device-card">
-                        <div className="device-icon">💡</div>
-                        <div className="device-name">Aqua Light</div>
-                        <div className="device-status">Active for 3 hours</div>
-                        <div className="device-power">5Kwh</div>
-                        <label
-                            className="toggle-switch"
-                            style={{ position: "absolute", top: "15px", right: "15px" }}
-                        >
-                            <input type="checkbox" />
-                            <span className="slider"></span>
-                        </label>
-                    </div>
-
-                    <div className="device-card">
-                        <div className="device-icon">💦</div>
-                        <div className="device-name">Filter</div>
-                        <div className="device-status">Active for 5 hours</div>
-                        <div className="device-power">5Kwh</div>
-                        <label
-                            className="toggle-switch"
-                            style={{ position: "absolute", top: "15px", right: "15px" }}
-                        >
-                            <input type="checkbox" checked />
-                            <span className="slider"></span>
-                        </label>
-                    </div>
-
-                    <div className="device-card">
-                        <div className="device-icon">🔥</div>
-                        <div className="device-name">Pump</div>
-                        <div className="device-status">Active for 3 hours</div>
-                        <div className="device-power">5Kwh</div>
-                        <label
-                            className="toggle-switch"
-                            style={{ position: "absolute", top: "15px", right: "15px" }}
-                        >
-                            <input type="checkbox" checked />
-                            <span className="slider"></span>
-                        </label>
-                    </div>
-
-                    <div className="device-card">
-                        <div className="device-icon">🔥</div>
-                        <div className="device-name">Heater</div>
-                        <div className="device-status">Active for 3 hours</div>
-                        <div className="device-power">5Kwh</div>
-                        <label
-                            className="toggle-switch"
-                            style={{ position: "absolute", top: "15px", right: "15px" }}
-                        >
-                            <input type="checkbox" checked />
-                            <span className="slider"></span>
-                        </label>
-                    </div>
-
-                    <div
-                        className="device-card"
-                        style={{
-                            backgroundColor: backgroundColor, // Dynamically set background color
-                            transition: "background-color 0.5s ease", // Smooth transition for blinking effect
-                        }}
-                    >
-                        <div className="device-icon">🔥</div>
-                        <div className="device-name">Food</div>
-                        <div className="device-status">Last Given: {lastFoodGiven}</div>
-                        <div className="device-power">Tue, Thu and Sat</div>
-                        <button
-                            onClick={handleFoodGiven}
-                            style={{
-                                position: "absolute",
-                                top: "12px",
-                                right: "12px",
-                                background: "transparent",                               
-                                borderRadius: "30%",
-                                border: "none",
-                                cursor: "pointer",
-                            }}
-                        >
-                            <img
-                                src={food}
-                                alt="Food"
-                                style={{ width: "40px", height: "40px" }}
-                            />
-                        </button>
-                    </div>
-                </div>
-            </div>
+      <div className="devices-grid">
+        <div className="device-card">
+          <div className="device-icon">💡</div>
+          <div className="device-name">Aqua Light</div>
+          <div className="device-status">Active for 3 hours</div>
+          <div className="device-power">5Kwh</div>
+          <label
+            className="toggle-switch"
+            style={{ position: "absolute", top: "15px", right: "15px" }}
+          >
+            <input
+              type="checkbox"
+              checked={switchStates.aquaLight}
+              onChange={() => handleToggle("aquaLight")}
+            />
+            <span className="slider"></span>
+          </label>
         </div>
-    );
+
+        <div className="device-card">
+          <div className="device-icon">💦</div>
+          <div className="device-name">Filter</div>
+          <div className="device-status">Active for 5 hours</div>
+          <div className="device-power">5Kwh</div>
+          <label
+            className="toggle-switch"
+            style={{ position: "absolute", top: "15px", right: "15px" }}
+          >
+            <input
+              type="checkbox"
+              checked={switchStates.filter}
+              onChange={() => handleToggle("filter")}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="device-card">
+          <div className="device-icon">🔥</div>
+          <div className="device-name">Pump</div>
+          <div className="device-status">Active for 3 hours</div>
+          <div className="device-power">5Kwh</div>
+          <label
+            className="toggle-switch"
+            style={{ position: "absolute", top: "15px", right: "15px" }}
+          >
+            <input
+              type="checkbox"
+              checked={switchStates.pump}
+              onChange={() => handleToggle("pump")}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="device-card">
+          <div className="device-icon">🔥</div>
+          <div className="device-name">Heater</div>
+          <div className="device-status">Active for 3 hours</div>
+          <div className="device-power">5Kwh</div>
+          <label
+            className="toggle-switch"
+            style={{ position: "absolute", top: "15px", right: "15px" }}
+          >
+            <input
+              type="checkbox"
+              checked={switchStates.heater}
+              onChange={() => handleToggle("heater")}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <div
+          className="device-card"
+          style={{
+            backgroundColor: backgroundColor, // Dynamically set background color
+            transition: "background-color 0.5s ease", // Smooth transition for blinking effect
+          }}
+        >
+          <div className="device-icon">🔥</div>
+          <div className="device-name">Food</div>
+          <div className="device-status">Last Given: {lastFoodGiven}</div>
+          <div className="device-power">Tue, Thu and Sat</div>
+          <button
+            onClick={handleFoodGiven}
+            style={{
+              position: "absolute",
+              top: "12px",
+              right: "12px",
+              background: "transparent",
+              borderRadius: "30%",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            <img
+              src={food}
+              alt="Food"
+              style={{ width: "40px", height: "40px" }}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Aquarium;

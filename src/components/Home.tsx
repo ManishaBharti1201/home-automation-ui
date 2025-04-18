@@ -40,9 +40,9 @@ const Home: React.FC = () => {
         weekday: "long",
         year: "numeric",
         month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
+         day: "numeric",
+        // hour: "2-digit",
+        // minute: "2-digit"
       });
       setCurrentDateTime(formattedDateTime);
 
@@ -128,7 +128,7 @@ const Home: React.FC = () => {
       </div>
 
       <div className={`main-content ${isDarkMode ? "dark-mode" : "light-mode"}`}>
-        <div className="sidebar">
+        {/* <div className="sidebar">
           <div
             className={`sidebar-item ${selectedMenu === "Dashboard" ? "active" : ""}`}
             onClick={() => setSelectedMenu("Dashboard")}
@@ -157,7 +157,7 @@ const Home: React.FC = () => {
             <span>⚙️</span>
             Settings
           </div>
-        </div>
+        </div> */}
 
         <div className="content">{renderContent()}</div>
       </div>

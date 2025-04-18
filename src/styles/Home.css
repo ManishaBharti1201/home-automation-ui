@@ -8,7 +8,6 @@
   body {
     background-color: #121212;
     color: white;
-    padding: 20px;
   }
 
   .light-mode {
@@ -41,6 +40,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-right: 20px;
   }
   
   .logo {
@@ -109,7 +109,6 @@
   
   .sidebar {
     background-color: #121212;
-    width: 150px;
     position: fixed;
     height: calc(100vh - 40px);
     left: 20px;
@@ -139,7 +138,7 @@
   .main-content {
     padding: 20px;
     border-radius: 2%;
-    margin: 20px 20px 20px 170px;
+    margin: 0px 20px 20px 20px;
   }
   
   .room-tabs {

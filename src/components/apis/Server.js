@@ -1,26 +1,33 @@
 const express = require("express");
 const axios = require("axios");
-const cors = require("cors");
 const app = express();
 
-app.use(cors()); // Enable CORS to allow requests from your frontend
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Allow all origins
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 app.get("/proxy", async (req, res) => {
-  const url = req.query.url;
-  if (!url) {
-    return res.status(400).send("Missing URL parameter");
-  }
-
   try {
-    const response = await axios.get(url, {
-      headers: {
-        // Add any headers required by the target URL
-      },
+    // Forward the request to the actual SSE endpoint
+    const response = await axios({
+      method: "get",
+      url: "https://sse-fake.andros.dev/events/",
+      responseType: "stream",
     });
-    res.send(response.data);
+
+    // Set the correct Content-Type for SSE
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    // Pipe the SSE stream to the client
+    response.data.pipe(res);
   } catch (error) {
-    console.error("Error fetching the URL:", error);
-    res.status(500).send("Error fetching the URL");
+    console.error("Error in proxy server:", error.message);
+    res.status(500).send("Error fetching SSE data");
   }
 });
 
