@@ -6,18 +6,6 @@ const SpeedCard = () => {
     const [, setSpeed] = useState({ download: 0, upload: 0 });
     const [isOnline, setIsOnline] = useState<boolean>(true); // State to track internet status
 
-    const fetchSpeed = async () => {
-        try {
-            const response = await fetch("https://api.fast.com/netflix/speedtest"); // Replace with a valid speed test API
-            const data = await response.json();
-            setSpeed({
-                download: data.downloadSpeed || 0,
-                upload: data.uploadSpeed || 0,
-            });
-        } catch (error) {
-            console.error("Error fetching speed:", error);
-        }
-    };
 
     const checkInternetStatus = async () => {
         try {
@@ -30,14 +18,13 @@ const SpeedCard = () => {
     };
 
     useEffect(() => {
-        fetchSpeed();
+
         checkInternetStatus();
 
-        const speedInterval = setInterval(fetchSpeed, 10000); // Refresh speed every 10 seconds
         const statusInterval = setInterval(checkInternetStatus, 5000); // Check internet status every 5 seconds
 
         return () => {
-            clearInterval(speedInterval);
+            
             clearInterval(statusInterval);
         };
     }, []);

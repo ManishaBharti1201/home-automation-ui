@@ -1,33 +1,47 @@
-import React, { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LivingRoom from "../dashboard/livingRoom/LivingRoom";
 import Aquarium from "../dashboard/Aquarium";
+import { data } from "react-router-dom";
 
 interface DashboardProps {
   isDarkMode: boolean; // Define the type for the isDarkMode prop
 }
 
+interface DeviceStatusEvent {
+  status: boolean;
+  ts: string;
+  devId: string;
+  productKey: string;
+}
+
 const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
-  const [rooms, setRooms] = useState<string[]>([
-    "Living Room",
-    "Aquarium",
-    "Patna"
-  ]);
+  const [rooms, setRooms] = useState<string[]>(["Living Room", "Aquarium", "Patna"]);
   const [activeRoom, setActiveRoom] = useState(rooms[0]);
   const [isAddingRoom, setIsAddingRoom] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
-  const [Devices, setDevices] = useState<any[]>([]); // State for Living Room devices
-
+  const [deviceData, setDeviceData] = useState<DeviceStatusEvent | null>(null); // State to store event data
+  
 
   useEffect(() => {
     // Connect to the SSE endpoint
-    const eventSource = new EventSource("http://localhost:5000/api/device-status");
+    const eventSource = new EventSource("http://localhost:8081/devices/status-stream");
 
-    // Listen for Living Room device updates
-    eventSource.addEventListener("livingRoomDevices", (event: any) => {
-      const data = JSON.parse(event.data);
-      setDevices(data);
-    });
+    // Listen for incoming messages
+    eventSource.onmessage = (event: MessageEvent) => {
+      console.log("Raw event data:", event.data);
+      try {
+        const data: DeviceStatusEvent = JSON.parse(event.data);
+        setDeviceData(data);
+      } catch (error) {
+        console.error("Error parsing event data:", error);
+      }
+    };
+
+    // Handle errors
+    eventSource.onerror = (error) => {
+      console.error("Error with SSE connection:", error);
+      eventSource.close(); // Close the connection on error
+    };
 
     // Cleanup the EventSource connection on component unmount
     return () => {
@@ -38,13 +52,13 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
   const renderRoomContent = () => {
     switch (activeRoom) {
       case "Living Room":
-        return <LivingRoom isDarkMode={isDarkMode} devices={Devices} />;
+        return <LivingRoom isDarkMode={isDarkMode} device={deviceData} />;
       case "Aquarium":
-        return <Aquarium devices={Devices} />;
+        return <Aquarium device={deviceData} />;
       default:
         return <div>Select a room to view its content.</div>;
     }
-  }
+  };
 
   const handleAddRoom = () => {
     if (newRoomName.trim() && !rooms.includes(newRoomName)) {
@@ -54,7 +68,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
     } else if (rooms.includes(newRoomName)) {
       alert("Room already exists!");
     } else {
-      alert("Room name cannot be empty!");  
+      alert("Room name cannot be empty!");
     }
   };
 
