@@ -1,48 +1,36 @@
 import React, { useEffect, useState } from "react";
 import SpeedCard from "./SpeedCard";
 import SpotifyCard from "./SpotifyCard";
-import recycle from "../../../assets/recycle.png";
-import trash from "../../../assets/trash.png";
+import recycle from "../../../assets/recycle.png"; // Import your CSS file for styling
+import trash from "../../../assets/trash.png"; // Import your CSS file for styling
 
 interface LivingRoomProps {
   isDarkMode: boolean;
-  event: any; // Change the type to `any` or a specific type if you know the structure
+  device: any; // Define the type for the isDarkMode prop// Define the type for the devices prop
 }
 
-const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
-  // State to manage the toggle switches
-  const [switchStates, setSwitchStates] = useState({
-    garden: false,
-    fountain: true,
-    garageLights: true,
-  });
+const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
+  // State to manage dark mode
 
+  const [gardenDevice, setGardenDevice] = useState<any>(null);
+  const [fountainDevice, setFountainDevice] = useState<any>(null);
+  const [garageDevice, setGarageDevice] = useState<any>(null);
+
+  // Update state based on the device data
   useEffect(() => {
-    if (event) {
-      try {
-        const parsedEvent = JSON.parse(event); // Parse the event data
-        console.log("Updating aquarium events:", parsedEvent);
-
-        // Update the state based on the event data
-        setSwitchStates((prevState) => ({
-          ...prevState,
-          fountain: parsedEvent.text ?? true,
-          garden: parsedEvent.text ?? true,
-          garageLights: parsedEvent.text ?? true,
-
-        }));
-      } catch (error) {
-        console.error("Error parsing event data:", error);
+    if (device) {
+      if (device.devId === "eba76027112512d0c4yste") {
+        console.log("Event received for Garden:", device);
+        setGardenDevice(device);
+      } else if (device.devId === "eb983962fe625a3cecm94t") {
+        console.log("Event received for Fountain:", device);
+        setFountainDevice(device);
+      }else if (device.devId === "062025582462ab4e42ad") {
+        console.log("Event received for Garage Bulb 1:", device);
+        setGarageDevice(device);
       }
     }
-  }, [event]); // Re-run the effect whenever the `event` prop changes
-
-  const handleToggle = (device: keyof typeof switchStates) => {
-    setSwitchStates((prevState) => ({
-      ...prevState,
-      [device]: !prevState[device],
-    }));
-  };
+  }, [device]);
 
   return (
     <div>
@@ -62,7 +50,9 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
       <div className="devices-grid">
         <SpeedCard />
 
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">💡</div>
           <div className="device-name">Garden</div>
           <div className="device-status">Active for 3 hours</div>
@@ -71,16 +61,14 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
             className="toggle-switch"
             style={{ position: "absolute", top: "15px", right: "15px" }}
           >
-            <input
-              type="checkbox"
-              checked={switchStates.garden}
-              onChange={() => handleToggle("garden")}
-            />
+            <input type="checkbox" checked={gardenDevice?.status} />
             <span className="slider"></span>
           </label>
         </div>
 
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">💦</div>
           <div className="device-name">Fountain</div>
           <div className="device-status">Active for 5 hours</div>
@@ -89,16 +77,14 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
             className="toggle-switch"
             style={{ position: "absolute", top: "15px", right: "15px" }}
           >
-            <input
-              type="checkbox"
-              checked={switchStates.fountain}
-              onChange={() => handleToggle("fountain")}
-            />
+            <input type="checkbox" checked={fountainDevice?.status} />
             <span className="slider"></span>
           </label>
         </div>
 
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">🔥</div>
           <div className="device-name">Garage Lights</div>
           <div className="device-status">Active for 3 hours</div>
@@ -107,16 +93,14 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
             className="toggle-switch"
             style={{ position: "absolute", top: "15px", right: "15px" }}
           >
-            <input
-              type="checkbox"
-              checked={switchStates.garageLights}
-              onChange={() => handleToggle("garageLights")}
-            />
+            <input type="checkbox" checked={garageDevice?.status} />
             <span className="slider"></span>
           </label>
         </div>
-
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        {/* <SpotifyCard /> */}
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">
             <img
               src={recycle}
@@ -125,7 +109,8 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
             />
           </div>
           <div className="device-name">Recycle</div>
-          <div className="device-power">Last Picked Up at: 07/04, 11:30</div>
+          <div className="device-status">Last Service:</div>
+          <div className="device-power">07/04, 11:30</div>
           <label
             className="toggle-switch"
             style={{ position: "absolute", top: "15px", right: "15px" }}
@@ -133,7 +118,9 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
             04/12 11:40pm
           </label>
         </div>
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">
             <img
               src={trash}
@@ -142,7 +129,8 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
             />
           </div>
           <div className="device-name">Trash</div>
-          <div className="device-power">Last Picked Up at: 07/04, 11:30</div>
+          <div className="device-status">Last Service:</div>
+          <div className="device-power">07/04, 11:30</div>
           <label
             className="toggle-switch"
             style={{ position: "absolute", top: "15px", right: "15px" }}
@@ -156,3 +144,5 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, event }) => {
 };
 
 export default LivingRoom;
+// Custom hook to manage state
+
