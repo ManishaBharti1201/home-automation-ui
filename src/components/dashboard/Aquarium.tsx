@@ -30,7 +30,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
       } else if (device.devId === "ebf7e89f76b6c51114f2ci") {
         console.log("Event received for Pump:", device);
         setPumpDevice(device);
-      } else if (device.devId === "ebf7e89f76b6c51114f2ci") {
+      } else if (device.devId === "eb4a8281458f2a33f0g2tv") {
         console.log("Event received for Heater:", device);
         setHeaterDevice(device);
       } 
