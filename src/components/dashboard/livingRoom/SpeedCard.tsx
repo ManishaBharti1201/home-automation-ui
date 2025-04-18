@@ -17,18 +17,17 @@ const SpeedCard = () => {
     }
   };
 
-  useEffect(() => {
-    //fetchSpeed();
-    checkInternetStatus();
+    useEffect(() => {
 
-    // Refresh speed every 10 seconds
-    const statusInterval = setInterval(checkInternetStatus, 5000); // Check internet status every 5 seconds
+        checkInternetStatus();
 
-    return () => {
-      
-      clearInterval(statusInterval);
-    };
-  }, []);
+        const statusInterval = setInterval(checkInternetStatus, 5000); // Check internet status every 5 seconds
+
+        return () => {
+            
+            clearInterval(statusInterval);
+        };
+    }, []);
 
   return (
     <div
