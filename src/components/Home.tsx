@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import "../styles/Home.css"; // Adjust the path as needed
-import Dashboard from "./menuItems/Dashboard"; // Adjust the path as needed
-import Usage from "./menuItems/Usage"; // Import the Usage component
-import Security from "./menuItems/Security"; // Import the Security component
+import Dashboard from "./Dashboard"; // Adjust the path as needed
+import Usage from "./dashboard/Usage"; // Import the Usage component
 import { useEffect } from "react";
 import { Settings } from "lucide-react";
 import Weather from "./dashboard/Weather"; // Import the Weather component
@@ -91,10 +90,6 @@ const Home: React.FC = () => {
         return <Dashboard isDarkMode={isDarkMode} />;
       case "Usage":
         return <Usage />;
-      case "Security":
-        return <Security />;
-      case "Setting":
-        return <Settings />;
       default:
         return <Dashboard isDarkMode={isDarkMode} />;
     }
@@ -157,7 +152,7 @@ const Home: React.FC = () => {
           </div>
         </div> */}
 
-        <div className="content">{renderContent()}</div>
+        <div className="content"><Dashboard isDarkMode={isDarkMode} /></div>
       </div>
     </div>
   );
