@@ -200,6 +200,13 @@
     align-items: center;
     margin-bottom: 15px;
   }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0px 0px 40px;
+  }
   
   .toggle-switch {
     position: relative;

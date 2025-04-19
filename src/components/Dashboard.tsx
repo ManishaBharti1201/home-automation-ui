@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import LivingRoom from "../dashboard/livingRoom/LivingRoom";
-import Aquarium from "../dashboard/Aquarium";
-import Usage from "./Usage";
+import LivingRoom from "./dashboard/livingRoom/LivingRoom";
+import Aquarium from "./dashboard/Aquarium";
+import Usage from "./dashboard/Usage";
 import { data } from "react-router-dom";
 
 interface DashboardProps {
@@ -25,7 +25,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
   const [isAddingRoom, setIsAddingRoom] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
   const [deviceData, setDeviceData] = useState<DeviceStatusEvent | null>(null); // State to store event data
-  
+
 
   useEffect(() => {
     // Connect to the SSE endpoint
@@ -66,6 +66,8 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode }) => {
         return <LivingRoom isDarkMode={isDarkMode} device={deviceData} />;
       case "Aquarium":
         return <Aquarium device={deviceData} />;
+      case "Usage":
+        return <Usage />;
       default:
         return <div>Select a room to view its content.</div>;
     }

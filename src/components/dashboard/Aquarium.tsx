@@ -103,15 +103,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
 
   return (
     <div>
-      <div
-        className="dashboard-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          margin: "20px 0",
-        }}
-      >
+      <div className="dashboard-header">
         <h2>Aquarium</h2>
         <button className="add-device-button">+ Add Device</button>
       </div>
@@ -183,26 +175,12 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
           >
             <div className="device-icon">🔥</div>
             <div className="device-name">Food</div>
-            <div className="device-status">Last Given: {lastFoodGiven}</div>
-            <div className="device-power">Tue, Thu and Sat</div>
-            <button
-              onClick={handleFoodGiven}
-              style={{
-                position: "absolute",
-                top: "12px",
-                right: "12px",
-                background: "transparent",
-                borderRadius: "30%",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <img
-                src={food}
-                alt="Food"
-                style={{ width: "40px", height: "40px" }}
-              />
-            </button>
+            <div className="device-power">Last Given: {lastFoodGiven}</div>
+            <label
+              className="toggle-switch"
+              style={{ position: "absolute", top: "15px", right: "15px" }}
+            > Tue Thu Sat
+            </label>
           </div>
         </div>
       </div>
