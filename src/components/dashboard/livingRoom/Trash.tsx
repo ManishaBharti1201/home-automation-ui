@@ -5,7 +5,7 @@ interface TrashProps {
     data: {
         pickUpDate: string,
         lastPickUp: string;
-        lastStatus: boolean;
+        lastStatus: string;
     };
 }
 
@@ -56,13 +56,13 @@ const Trash: React.FC<TrashProps> = ({ data }) => {
                     style={{ width: "20px", height: "20px" }}
                 />
             </div>
-            <div className="device-name">Recycle</div>
-            <div className="device-status">Last Service:</div>
+            <div className="device-name">Trash</div>
+            <div className="device-status">Last Service: {data?.lastStatus}</div>
             <div className="device-power">{data?.lastPickUp || "N/A"}</div>
             <label
                 className="toggle-switch"
                 style={{ position: "absolute", top: "15px", right: "15px" }}
-            >{data?.pickUpDate || "04/12 11:40pm"}            
+            >{data.pickUpDate}            
             </label>
         </div>
     );
