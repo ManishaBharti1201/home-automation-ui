@@ -3,11 +3,10 @@ import "../styles/Home.css"; // Adjust the path as needed
 import Dashboard from "./Dashboard"; // Adjust the path as needed
 import Usage from "./dashboard/Usage"; // Import the Usage component
 import { useEffect } from "react";
-import { Settings } from "lucide-react";
 import Weather from "./dashboard/Weather"; // Import the Weather component
 
 const Home: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = useState<string>("Dashboard");
+  const [] = useState<string>("Dashboard");
   const [currentDateTime, setCurrentDateTime] = useState<string>("");
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // State for theme toggle
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null); // State for battery level
@@ -84,16 +83,6 @@ const Home: React.FC = () => {
     }
   };
 
-  const renderContent = () => {
-    switch (selectedMenu) {
-      case "Dashboard":
-        return <Dashboard isDarkMode={isDarkMode} />;
-      case "Usage":
-        return <Usage />;
-      default:
-        return <Dashboard isDarkMode={isDarkMode} />;
-    }
-  };
 
   return (
     <div className={`app-container ${isDarkMode ? "dark-mode" : "light-mode"}`}>

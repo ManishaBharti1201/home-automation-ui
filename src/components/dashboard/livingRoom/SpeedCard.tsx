@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import wifi from "../../../assets/wifi/wifi.png";
 import noWifi from "../../../assets/wifi/no-wifi.png";
-import { log } from "console";
 
 const SpeedCard = () => {
   const [isOnline, setIsOnline] = useState<boolean>(true); // State to track internet status
