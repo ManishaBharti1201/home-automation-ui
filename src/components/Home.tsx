@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import "../styles/Home.css"; // Adjust the path as needed
 import Dashboard from "./Dashboard"; // Adjust the path as needed
-import Usage from "./dashboard/Usage"; // Import the Usage component
 import { useEffect } from "react";
 import Weather from "./dashboard/Weather"; // Import the Weather component
 
 const Home: React.FC = () => {
-  const [] = useState<string>("Dashboard");
+  
   const [currentDateTime, setCurrentDateTime] = useState<string>("");
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // State for theme toggle
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null); // State for battery level
