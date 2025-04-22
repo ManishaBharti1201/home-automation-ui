@@ -40,7 +40,7 @@ const Recycle: React.FC<RecycleProps> = ({ data }) => {
         const interval = setInterval(checkRecycleTime, 1000);
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [data?.pickUpDate]);
+    });
 
     return (
         <div
