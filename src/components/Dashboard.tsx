@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import LivingRoom from "./dashboard/livingRoom/LivingRoom";
 import Aquarium from "./dashboard/Aquarium";
 import Usage from "./dashboard/Usage";
-import { data } from "react-router-dom";
 
 interface DashboardProps {
   isDarkMode: boolean; // Define the type for the isDarkMode prop
