@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/react-gh-pages/static/css/main.4062c712.css",
-    "main.js": "/react-gh-pages/static/js/main.3d119bea.js",
-    "static/js/453.49a9f6c5.chunk.js": "/react-gh-pages/static/js/453.49a9f6c5.chunk.js",
-    "static/media/wifi.png": "/react-gh-pages/static/media/wifi.6a7ea12853d08f5da647.png",
-    "static/media/no-wifi.png": "/react-gh-pages/static/media/no-wifi.28ccc0b0dfc6bf3e8762.png",
-    "index.html": "/react-gh-pages/index.html",
-    "main.4062c712.css.map": "/react-gh-pages/static/css/main.4062c712.css.map",
-    "main.3d119bea.js.map": "/react-gh-pages/static/js/main.3d119bea.js.map",
-    "453.49a9f6c5.chunk.js.map": "/react-gh-pages/static/js/453.49a9f6c5.chunk.js.map"
+    "main.css": "/home-automation-ui/static/css/main.4062c712.css",
+    "main.js": "/home-automation-ui/static/js/main.f57f48fe.js",
+    "static/js/453.49a9f6c5.chunk.js": "/home-automation-ui/static/js/453.49a9f6c5.chunk.js",
+    "static/media/wifi.png": "/home-automation-ui/static/media/wifi.6a7ea12853d08f5da647.png",
+    "static/media/no-wifi.png": "/home-automation-ui/static/media/no-wifi.28ccc0b0dfc6bf3e8762.png",
+    "index.html": "/home-automation-ui/index.html",
+    "main.4062c712.css.map": "/home-automation-ui/static/css/main.4062c712.css.map",
+    "main.f57f48fe.js.map": "/home-automation-ui/static/js/main.f57f48fe.js.map",
+    "453.49a9f6c5.chunk.js.map": "/home-automation-ui/static/js/453.49a9f6c5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4062c712.css",
-    "static/js/main.3d119bea.js"
+    "static/js/main.f57f48fe.js"
   ]
 }
