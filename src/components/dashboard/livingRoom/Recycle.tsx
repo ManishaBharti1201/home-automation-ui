@@ -11,13 +11,13 @@ interface RecycleProps {
 
 const Recycle: React.FC<RecycleProps> = ({ data }) => {
     const [isBlinking, setIsBlinking] = useState(false);
-
+    const [backgroundColor, setBackgroundColor] = useState<string>("#252525"); // State to track the current background color
     useEffect(() => {
         if (!data) return;
 
         const checkRecycleTime = () => {
             const currentTime = new Date();
-            const recycleTime = new Date(data.pickUpDate);
+            const recycleTime = new Date();
 
             // Check if the current time matches the recycle time (to the minute)
             if (
@@ -27,26 +27,34 @@ const Recycle: React.FC<RecycleProps> = ({ data }) => {
                 currentTime.getHours() === recycleTime.getHours() &&
                 currentTime.getMinutes() === recycleTime.getMinutes()
             ) {
+
                 setIsBlinking(true);
 
                 // Stop blinking after 1 minute
                 setTimeout(() => {
-                    setIsBlinking(false);
-                }, 60 * 1000);
+                    clearInterval(interval); // Stop toggling after 5 seconds
+                    setBackgroundColor("#252525"); // Reset to default color
+                }, 10000);
             }
         };
 
         // Check every second
-        const interval = setInterval(checkRecycleTime, 1000);
+        let isBlue = false;
+        const interval = setInterval(() => {
+            checkRecycleTime();
+            setBackgroundColor(isBlue ? "#252525" : "#8875FF");
+            isBlue = !isBlue;
+        }, 500); // Toggle every 500ms
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [data?.pickUpDate]);
 
     return (
         <div
-            className={`device-card ${isBlinking ? "blinking" : ""}`}
+            className="device-card"
             style={{
-                animation: isBlinking ? "blink 1s infinite" : "none",
+                backgroundColor: backgroundColor, // Dynamically set background color
+                transition: "background-color 0.5s ease", // Smooth transition for blinking effect
             }}
         >
             <div className="device-icon">
@@ -62,7 +70,7 @@ const Recycle: React.FC<RecycleProps> = ({ data }) => {
             <label
                 className="toggle-switch"
                 style={{ position: "absolute", top: "15px", right: "15px" }}
-            >{data?.pickUpDate || "04/12 11:40pm"}            
+            >{data?.pickUpDate || "04/12 11:40pm"}
             </label>
         </div>
     );

@@ -32,7 +32,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
       } else if (device.devId === "eb4a8281458f2a33f0g2tv") {
         console.log("Event received for Heater:", device);
         setHeaterDevice(device);
-      } 
+      }
     }
   }, [device]);
 
@@ -119,7 +119,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
               className="toggle-switch"
               style={{ position: "absolute", top: "15px", right: "15px" }}
             >
-              <input type="checkbox" checked={aquaLightDevice?.status}/>
+              <input type="checkbox" checked={aquaLightDevice?.status} />
               <span className="slider"></span>
             </label>
           </div>
@@ -133,7 +133,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
               className="toggle-switch"
               style={{ position: "absolute", top: "15px", right: "15px" }}
             >
-              <input type="checkbox" checked ={filterDevice?.status}/>
+              <input type="checkbox" checked={filterDevice?.status} />
               <span className="slider"></span>
             </label>
           </div>
@@ -161,7 +161,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
               className="toggle-switch"
               style={{ position: "absolute", top: "15px", right: "15px" }}
             >
-              <input type="checkbox" checked={heaterDevice?.status}  />
+              <input type="checkbox" checked={heaterDevice?.status} />
               <span className="slider"></span>
             </label>
           </div>

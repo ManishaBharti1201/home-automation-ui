@@ -15,6 +15,7 @@ export const fetchWeatherData = async (latitude: number, longitude: number) => {
             "rain",
             "showers",
             "snowfall",
+            "weather_code", 
         ],
     };
 

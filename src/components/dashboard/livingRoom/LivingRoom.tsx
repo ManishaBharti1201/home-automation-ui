@@ -13,6 +13,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
   const [gardenDevice, setGardenDevice] = useState<any>(null);
   const [fountainDevice, setFountainDevice] = useState<any>(null);
   const [garageDevice, setGarageDevice] = useState<any>(null);
+  const [garageDevice2, setGarageDevice2] = useState<any>(null);
   const [trashRecycleData, setTrashRecycleData] = useState({
     trash: {
       pickUpDate: "",
@@ -81,6 +82,10 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
       } else if (device.devId === "062025582462ab4e42ad") {
         console.log("Event received for Garage Bulb 1:", device);
         setGarageDevice(device);
+      }
+      else if (device.devId === "062025582462ab4e42ad") {
+        console.log("Event received for Garage Bulb 1:", device);
+        setGarageDevice2(device);
       }
     }
   }, [device]);
@@ -157,7 +162,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
               className="toggle-switch"
               style={{ position: "absolute", top: "15px", right: "15px" }}
             >
-              <input type="checkbox" checked={false} />
+              <input type="checkbox" checked={garageDevice2?.status} />
               <span className="slider"></span>
             </label>
           </div>

@@ -11,7 +11,9 @@
     width: 80px;
     /* Adjust the size of the weather icon */
     height: 80px;
+    margin: 10px;
 }
+
 
 .weather {
     display: flex;
