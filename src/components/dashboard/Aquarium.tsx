@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import food from "../../assets/fish-food.png"; // Import the food button image
 
 interface AquariumProps {
   device: any;
@@ -8,11 +7,7 @@ interface AquariumProps {
 const Aquarium: React.FC<AquariumProps> = ({ device }) => {
   const [lastFoodGiven, setLastFoodGiven] = useState<string>("March 02"); // Default last food given date
   const [backgroundColor, setBackgroundColor] = useState<string>("#252525"); // State to track the current background color
-
-  const [gardenDevice, setGardenDevice] = useState<any>(null);
   const [aquaLightDevice, setAquaLightDevice] = useState<any>(null);
-  const [fountainDevice, setFountainDevice] = useState<any>(null);
-  const [garageDevice, setGarageDevice] = useState<any>(null);
   const [heaterDevice, setHeaterDevice] = useState<any>(null);
   const [filterDevice, setFilterDevice] = useState<any>(null);
   const [pumpDevice, setPumpDevice] = useState<any>(null);

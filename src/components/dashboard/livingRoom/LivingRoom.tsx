@@ -13,17 +13,16 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
   const [gardenDevice, setGardenDevice] = useState<any>(null);
   const [fountainDevice, setFountainDevice] = useState<any>(null);
   const [garageDevice, setGarageDevice] = useState<any>(null);
-  const [garageDevice2, setGarageDevice2] = useState<any>(null);
   const [trashRecycleData, setTrashRecycleData] = useState({
     trash: {
       pickUpDate: "",
       lastPickUp: "",
-      lastStatus: false,
+      lastStatus: "",
     },
     recycle: {
       pickUpDate: "",
       lastPickUp: "",
-      lastStatus: false,
+      lastStatus: "",
     },
   });
 
@@ -36,17 +35,42 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
   // Function to fetch TrashRecycle data
   const fetchTrashRecycleData = async () => {
     try {
-      const response = await axios.get<{ trash: any; recycle: string }>("/api/trash-recycle"); // Replace with your actual API endpoint
+      const response = await axios.get("http://localhost:8081/devices/WM"); // Replace with your actual API endpoint
+
       setTrashRecycleData({
         trash: {
-          pickUpDate: response.data.trash.pickUpDate || "",
-          lastPickUp: response.data.trash.lastPickUp || "",
-          lastStatus: response.data.trash.lastStatus || false,
+          pickUpDate: (
+            response.data as {
+               NextTrashService: string ;
+            }
+          ).NextTrashService,
+          lastPickUp: (
+            response.data as {
+              PreviousTrashService: string ;
+            }
+          ).PreviousTrashService,
+         lastStatus: (
+            response.data as {
+              PreviousTrashStatus: string ;
+            }
+          ).PreviousTrashStatus,
         },
         recycle: {
-          pickUpDate: response.data.trash.pickUpDate || "",
-          lastPickUp: response.data.trash.lastPickUp || "",
-          lastStatus: response.data.trash.lastStatus || false,
+          pickUpDate: (
+            response.data as {
+              NextRecyclingService: string ;
+            }
+          ).NextRecyclingService,
+          lastPickUp: (
+            response.data as {
+              PreviousRecyclingService: string ;
+            }
+          ).PreviousRecyclingService,
+          lastStatus: (
+            response.data as {
+              PreviousRecyclingStatus: string ;
+            }
+          ).PreviousRecyclingStatus,
         },
       });
     } catch (error) {
@@ -56,9 +80,9 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
 
   useEffect(() => {
     // Check if today is Friday and fetch data
-    if (isFriday()) {
+    // if (isFriday()) {
       fetchTrashRecycleData();
-    }
+    //}
 
     // Set up an interval to check every day at midnight
     const interval = setInterval(() => {
@@ -101,7 +125,9 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
         <SpeedCard />
 
         {/* Garden Device */}
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">💡</div>
           <div className="device-name">Garden</div>
           <div className="device-status">Active for 3 hours</div>
@@ -116,7 +142,9 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
         </div>
 
         {/* Fountain Device */}
-        <div className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+        <div
+          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
+        >
           <div className="device-icon">💦</div>
           <div className="device-name">Fountain</div>
           <div className="device-status">Active for 5 hours</div>
@@ -132,7 +160,9 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
 
         {/* Container for Garage Lights */}
         <div
-          className={`device-card-container ${isDarkMode ? "dark-mode" : "light-mode"}`}
+          className={`device-card-container ${
+            isDarkMode ? "dark-mode" : "light-mode"
+          }`}
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
@@ -162,7 +192,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
               className="toggle-switch"
               style={{ position: "absolute", top: "15px", right: "15px" }}
             >
-              <input type="checkbox" checked={garageDevice2?.status} />
+              <input type="checkbox" checked={false} />
               <span className="slider"></span>
             </label>
           </div>
@@ -172,7 +202,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
         <Trash data={trashRecycleData.trash} />
 
         {/* Recycle Component */}
-        <Recycle data={ trashRecycleData.recycle } />
+        <Recycle data={trashRecycleData.recycle} />
       </div>
     </div>
   );
