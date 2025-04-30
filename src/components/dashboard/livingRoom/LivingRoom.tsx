@@ -13,6 +13,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
   const [gardenDevice, setGardenDevice] = useState<any>(null);
   const [fountainDevice, setFountainDevice] = useState<any>(null);
   const [garageDevice, setGarageDevice] = useState<any>(null);
+  const [garageDevice2, setGarageDevice2] = useState<any>(null);
   const [trashRecycleData, setTrashRecycleData] = useState({
     trash: {
       pickUpDate: "",
