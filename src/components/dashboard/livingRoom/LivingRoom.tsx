@@ -33,61 +33,61 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
   };
 
   // Function to fetch TrashRecycle data
-  const fetchTrashRecycleData = async () => {
-    try {
-      const response = await axios.get("http://localhost:8081/devices/WM"); // Replace with your actual API endpoint
+  // const fetchTrashRecycleData = async () => {
+  //   try {
+  //     const response = await axios.get("http://localhost:8081/devices/WM"); // Replace with your actual API endpoint
 
-      setTrashRecycleData({
-        trash: {
-          pickUpDate: (
-            response.data as {
-               NextTrashService: string ;
-            }
-          ).NextTrashService,
-          lastPickUp: (
-            response.data as {
-              PreviousTrashService: string ;
-            }
-          ).PreviousTrashService,
-         lastStatus: (
-            response.data as {
-              PreviousTrashStatus: string ;
-            }
-          ).PreviousTrashStatus,
-        },
-        recycle: {
-          pickUpDate: (
-            response.data as {
-              NextRecyclingService: string ;
-            }
-          ).NextRecyclingService,
-          lastPickUp: (
-            response.data as {
-              PreviousRecyclingService: string ;
-            }
-          ).PreviousRecyclingService,
-          lastStatus: (
-            response.data as {
-              PreviousRecyclingStatus: string ;
-            }
-          ).PreviousRecyclingStatus,
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching TrashRecycle data:", error);
-    }
-  };
+  //     setTrashRecycleData({
+  //       trash: {
+  //         pickUpDate: (
+  //           response.data as {
+  //              NextTrashService: string ;
+  //           }
+  //         ).NextTrashService,
+  //         lastPickUp: (
+  //           response.data as {
+  //             PreviousTrashService: string ;
+  //           }
+  //         ).PreviousTrashService,
+  //        lastStatus: (
+  //           response.data as {
+  //             PreviousTrashStatus: string ;
+  //           }
+  //         ).PreviousTrashStatus,
+  //       },
+  //       recycle: {
+  //         pickUpDate: (
+  //           response.data as {
+  //             NextRecyclingService: string ;
+  //           }
+  //         ).NextRecyclingService,
+  //         lastPickUp: (
+  //           response.data as {
+  //             PreviousRecyclingService: string ;
+  //           }
+  //         ).PreviousRecyclingService,
+  //         lastStatus: (
+  //           response.data as {
+  //             PreviousRecyclingStatus: string ;
+  //           }
+  //         ).PreviousRecyclingStatus,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching TrashRecycle data:", error);
+  //   }
+  // };
 
   useEffect(() => {
     // Check if today is Friday and fetch data
     // if (isFriday()) {
-      fetchTrashRecycleData();
+    //  fetchTrashRecycleData();
     //}
 
     // Set up an interval to check every day at midnight
     const interval = setInterval(() => {
       if (isFriday()) {
-        fetchTrashRecycleData();
+      //  fetchTrashRecycleData();
       }
     }, 24 * 60 * 60 * 1000); // Check every 24 hours
 
