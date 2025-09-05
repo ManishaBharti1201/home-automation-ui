@@ -8,7 +8,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/home-automation-ui" element={<Home />} />
+        <Route path="/" element={<Home />} />
       </Routes>
     </Router>
   );
