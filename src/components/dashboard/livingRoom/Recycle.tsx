@@ -1,71 +1,53 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import recycleIcon from "../../../assets/recycle.png";
 
-interface RecycleProps {
-    data: {
-        pickUpDate: string,
-        lastPickUp: string;
-        lastStatus: string;
-    };
+interface ServiceProps {
+    data: { pickUpDate: string, lastStatus: string };
+    type: 'trash' | 'recycle';
 }
 
-const Recycle: React.FC<RecycleProps> = ({ data }) => {
-    const [isBlinking, setIsBlinking] = useState(false);
-
-    useEffect(() => {
-        if (!data) return;
-
-        const checkRecycleTime = () => {
-            const currentTime = new Date();
-            const recycleTime = new Date(data.pickUpDate);
-
-            // Check if the current time matches the recycle time (to the minute)
-            if (
-                currentTime.getFullYear() === recycleTime.getFullYear() &&
-                currentTime.getMonth() === recycleTime.getMonth() &&
-                currentTime.getDate() === recycleTime.getDate() &&
-                currentTime.getHours() === recycleTime.getHours() &&
-                currentTime.getMinutes() === recycleTime.getMinutes()
-            ) {
-                setIsBlinking(true);
-
-                // Stop blinking after 1 minute
-                setTimeout(() => {
-                    setIsBlinking(false);
-                }, 60 * 1000);
-            }
-        };
-
-        // Check every second
-        const interval = setInterval(checkRecycleTime, 1000);
-
-        return () => clearInterval(interval); // Cleanup interval on component unmount
-    });
+const ServiceCard: React.FC<ServiceProps> = ({ data, type }) => {
+    const isTrash = type === 'trash';
+    // Darker base backgrounds for contrast against light wallpaper
+    const themeColor = isTrash ? "border-indigo-500/40 bg-black/40" : "border-cyan-500/40 bg-black/40";
+    const badgeColor = isTrash ? "bg-indigo-600/80 text-white" : "bg-cyan-600/80 text-black";
 
     return (
-        <div
-            className={`device-card ${isBlinking ? "blinking" : ""}`}
-            style={{
-                animation: isBlinking ? "blink 1s infinite" : "none",
-            }}
-        >
-            <div className="device-icon">
-                <img
-                    src={recycleIcon}
-                    alt="Recycle Icon"
-                    style={{ width: "20px", height: "20px" }}
-                />
+        <div className={`
+            relative flex flex-col justify-between p-5 min-h-[160px] 
+            backdrop-blur-md border-2 rounded-[2rem] shadow-2xl
+            ${themeColor}
+        `}>
+            <div className="flex justify-between items-start">
+                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <img src={recycleIcon} className="w-8 h-8 invert opacity-90" alt="service-icon" />
+                </div>
+                
+                <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg ${badgeColor}`}>
+                    {isTrash ? "TRASH DAY" : "RECYCLING"}
+                </div>
             </div>
-            <div className="device-name">Recycle</div>
-            <div className="device-status">Last Service: {data?.lastStatus}</div>
-            <div className="device-power">{data?.lastPickUp || "N/A"}</div>
-            <label
-                className="toggle-switch"
-                style={{ position: "absolute", top: "15px", right: "15px" }}
-            >{data.pickUpDate} 
-            </label>
+
+            <div className="mt-4">
+                <div className="font-black text-2xl text-white leading-tight italic uppercase tracking-tighter drop-shadow-md">
+                    {isTrash ? "Trash Service" : "Recycle Service"}
+                </div>
+                <div className={`text-xs font-black uppercase tracking-[0.2em] mt-1 ${isTrash ? 'text-indigo-300' : 'text-cyan-300'}`}>
+                    Pickup: {data?.pickUpDate || "No Schedule"}
+                </div>
+            </div>
+
+            <div className="absolute right-5 bottom-5 text-[10px] font-black text-white/20 uppercase italic tracking-widest">
+                {data?.lastStatus || "Status OK"}
+            </div>
         </div>
     );
 };
 
-export default Recycle;
+// Exporting refined versions
+export const Trash = ({ data }: any) => <ServiceCard data={data} type="trash" />;
+export const Recycle = ({ data }: any) => <ServiceCard data={data} type="recycle" />;
+
+export default ServiceCard;
+
+//

@@ -1,151 +1,91 @@
-import React, { useState } from "react";
-import "../styles/Home.css"; // Adjust the path as needed
-import Dashboard from "./Dashboard"; // Adjust the path as needed
-import { useEffect } from "react";
-import Weather from "./dashboard/Weather"; // Import the Weather component
+import React, { useState, useMemo } from "react";
+import Dashboard from "./Dashboard"; 
+import Weather from "./dashboard/Weather";
+
+const sunnyVideo = require("../assets/weather/sunny.mp4");
 
 const Home: React.FC = () => {
-  
-  const [currentDateTime, setCurrentDateTime] = useState<string>("");
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // State for theme toggle
-  const [batteryLevel, setBatteryLevel] = useState<number | null>(null); // State for battery level
-  const [isCharging, setIsCharging] = useState<boolean | null>(null); // State for charging status
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
-  const getBatteryIcon = () => {
-    if (batteryLevel === null) return "🔋"; // Default icon if battery status is unavailable
-    if (isCharging) return "⚡"; // Charging icon
-    if (batteryLevel > 80) return "🔋"; // Full battery
-    if (batteryLevel > 50) return "🔋"; // Medium battery
-    if (batteryLevel > 20) return "🪫"; // Low battery
-    return "🪫"; // Critical battery
-  };
-
-  useEffect(() => {
-    // Automatically set theme based on time
-    const currentHour = new Date().getHours();
-    if (currentHour >= 6 && currentHour < 18) {
-      setIsDarkMode(true); // Light mode during the day (6 AM to 6 PM)
-    } else {
-      setIsDarkMode(true); // Dark mode during the night (6 PM to 6 AM)
-    }
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "GOOD MORNING";
+    if (hour < 17) return "GOOD AFTERNOON";
+    if (hour < 21) return "GOOD EVENING";
+    return "GOOD NIGHT";
   }, []);
-
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      const formattedDateTime = now.toLocaleString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      setCurrentDateTime(formattedDateTime);
-
-    };
-
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000); // Update every second
-    return () => clearInterval(interval); // Cleanup interval on component unmount
-  }, []);
-
-  useEffect(() => {
-    // Fetch battery status using the Battery Status API
-    const fetchBatteryStatus = async () => {
-      if ("getBattery" in navigator) {
-        const battery = await (navigator as any).getBattery();
-        setBatteryLevel(Math.round(battery.level * 100)); // Convert battery level to percentage
-        setIsCharging(battery.charging);
-
-        // Add event listeners to update battery status dynamically
-        battery.addEventListener("levelchange", () =>
-          setBatteryLevel(Math.round(battery.level * 100))
-        );
-        battery.addEventListener("chargingchange", () =>
-          setIsCharging(battery.charging)
-        );
-      }
-    };
-
-    fetchBatteryStatus();
-  }, []);
-
-  const getGreeting = () => {
-    const currentHour = new Date().getHours();
-    if (currentHour < 12) {
-      return "Good Morning Bhanu & Family";
-    } else if (currentHour < 15) {
-      return "Good Afternoon Bhanu & Family";
-    } else if (currentHour < 20) {
-      return "Good Evening Bhanu & Family";
-    } else {
-      return "Good Night Bhanu & Family";
-    }
-  };
-
 
   return (
-    <div className={`app-container ${isDarkMode ? "dark-mode" : "light-mode"}`}>
-      <div className="header">
-        {/* Replace with a valid Weather component or remove */}
-        <Weather />
-        <div className="logo">
-          {getGreeting()}
-        </div>
-        <div className="date-time">
-          {currentDateTime}
-        </div>
-        <div className="user-actions">
-          <button
-            className="icon-button theme-toggle"
-            onClick={() => setIsDarkMode(!isDarkMode)}
+    // Base background is now a solid, stable dark color
+    <div className="min-h-screen flex flex-col font-sans bg-[#0a0a0b] text-white antialiased">
+      
+      {/* 1. HEADER WITH SCOPED VIDEO */}
+      <header className="w-full p-3 shrink-0 relative overflow-hidden h-[120px] md:h-[140px]">
+        
+        {/* VIDEO CONFINED TO HEADER ONLY */}
+        <div className="absolute inset-0 z-0">
+          <video 
+            autoPlay loop muted playsInline
+            className="w-full h-full object-cover"        
           >
-            {isDarkMode ? "🌙" : "🌞"}
-          </button>
-          <button className="icon-button">🔔</button>
-          <div className="user-avatar" style={{ fontSize: "0.8rem", textAlign: "center" }}>
-            {getBatteryIcon()} {batteryLevel !== null ? `${batteryLevel}%` : ""}
-          </div>
+            <source src={sunnyVideo} type="video/mp4" />
+          </video>
+          {/* Blur helps blend the bottom of the header into the solid body */}
+          {/* <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-[#0a0a0b]" /> */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0a0b]/80" />
         </div>
-      </div>
 
-      <div className={`main-content ${isDarkMode ? "dark-mode" : "light-mode"}`}>
-        {/* <div className="sidebar">
-          <div
-            className={`sidebar-item ${selectedMenu === "Dashboard" ? "active" : ""}`}
-            onClick={() => setSelectedMenu("Dashboard")}
-          >
-            <span>🏠</span>
-            Dashboard
+        {/* HEADER CONTENT LAYER */}
+        <div className="relative z-10 max-w-[1800px] mx-auto h-full flex items-center justify-between px-6 border-b border-white/5">
+          
+          {/* LEFT: WEATHER */}
+          <div className="flex-1 flex items-center gap-4 ">
+            <Weather />
+            <div className="hidden xl:flex items-center gap-3 px-4 py-2 bg-black/20 rounded-xl border border-white/10">
+               <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-300">
+                  <span className="text-xs font-black">CAL</span>
+               </div>
+               <div className="flex flex-col">
+                  <span className="text-base font-black italic uppercase leading-none">Flight to Patna</span>
+                  <span className="text-[10px] font-black uppercase text-white/30 mt-1">Mar 30 • 6E</span>
+               </div>
+            </div>
           </div>
-          <div
-            className={`sidebar-item ${selectedMenu === "Usage" ? "active" : ""}`}
-            onClick={() => setSelectedMenu("Usage")}
-          >
-            <span>🕒</span>
-            Usage
-          </div>
-          <div
-            className={`sidebar-item ${selectedMenu === "Security" ? "active" : ""}`}
-            onClick={() => setSelectedMenu("Security")}
-          >
-            <span>🔒</span>
-            Security
-          </div>
-          <div
-            className={`sidebar-item ${selectedMenu === "Setting" ? "active" : ""}`}
-            onClick={() => setSelectedMenu("Setting")}
-          >
-            <span>⚙️</span>
-            Settings
-          </div>
-        </div> */}
 
-        <div className="content"><Dashboard isDarkMode={isDarkMode} /></div>
-      </div>
+          {/* CENTER: GREETING */}
+          <div className="hidden md:flex flex-col items-center flex-[1.2]">
+            <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase drop-shadow-2xl">
+              {greeting}
+            </h1>
+            <span className="text-[9px] font-black tracking-[0.5em] text-white/20 uppercase mt-1">CORE OS V3</span>
+          </div>
+
+          {/* RIGHT: SYSTEM STATUS */}
+          <div className="flex-1 flex justify-end items-center gap-4">
+             <div className="flex items-center gap-4 bg-black/20 p-2 rounded-xl border border-white/10">
+                <button onClick={() => setIsDarkMode(!isDarkMode)} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-lg text-xl transition-none">
+                  {isDarkMode ? "🌙" : "🌞"}
+                </button>
+                <div className="flex items-center gap-3 px-1">
+                  <div className="flex flex-col items-end">
+                    <span className="text-base font-black italic leading-none">94%</span>
+                    <span className="text-[8px] font-black text-white/30 uppercase">Power</span>
+                  </div>
+                  <div className="relative w-12 h-6 border border-white/40 rounded-md p-[2px] bg-black/50">
+                    <div className="h-full rounded-[2px] bg-cyan-400 w-[94%]" />
+                  </div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. STABLE MAIN CONTENT AREA */}
+      <main className="flex-1 p-6 max-w-[1800px] mx-auto w-full">
+        <Dashboard isDarkMode={isDarkMode} />
+      </main>
     </div>
   );
 };
 
 export default Home;
-
-// Removed conflicting local useEffect function
