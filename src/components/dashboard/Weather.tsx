@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { fetchWeatherData } from "../../api/weatherApi";
 import React from "react";
 
-// Move weatherCodeMapping outside the component
 const weatherCodeMapping: { [key: string]: { image: string; description: string } } = {
     "0": { image: require("../../assets/weather/clear.png"), description: "Clear sky" },
+<<<<<<< HEAD
     "1": { image: require("../../assets/weather/few-clouds.png"), description: "Few clouds" },
     "45": { image: require("../../assets/weather/fog.png"), description: "Scattered clouds" },
     "51": { image: require("../../assets/weather/fog.png"), description: "Broken clouds" },
@@ -17,68 +17,88 @@ const weatherCodeMapping: { [key: string]: { image: string; description: string 
     "85": { image: require("../../assets/weather/fog.png"), description: "Snow" },
     "95": { image: require("../../assets/weather/fog.png"), description: "Mist" },
     "96": { image: require("../../assets/weather/fog.png"), description: "Mist" },
+=======
+    "1": { image: require("../../assets/weather/mostly_clear_day.png"), description: "Mostly Clear" },
+    "2": { image: require("../../assets/weather/partly_cloudy_day.png"), description: "Partly Cloudy" },
+    "3": { image: require("../../assets/weather/cloudy.png"), description: "Overcast" },
+    "45": { image: require("../../assets/weather/fog.png"), description: "Fog" },
+    "48": { image: require("../../assets/weather/fog.png"), description: "Icy Fog" },
+    "51": { image: require("../../assets/weather/drizzle.png"), description: "Drizzle" },
+    "61": { image: require("../../assets/weather/light_rain.png"), description: "Light Rain" },
+    "63": { image: require("../../assets/weather/rain.png"), description: "Rain" },
+    "65": { image: require("../../assets/weather/heavy_rain.png"), description: "Heavy Rain" },
+    "71": { image: require("../../assets/weather/snow_light.png"), description: "Light Snow" },
+    "95": { image: require("../../assets/weather/thunderstorm.png"), description: "Thunderstorm" },
+    // ... add others as needed
+>>>>>>> 896f041 (ui fix , dockerfile, github action)
 };
 
 const Weather: React.FC = () => {
-    const [weather, setWeather] = useState<{
-        condition: string;
-        temperature: string;
-        icon: string;
-    }>({
-        condition: "Loading...",
-        temperature: "--°C",
+    const [weather, setWeather] = useState({
+        condition: "Syncing...",
+        temperature: "--",
         icon: "",
     });
 
     useEffect(() => {
         const fetchWeather = async () => {
             try {
-                const data = await fetchWeatherData(36.2, -94.29); // Pass latitude and longitude
-                const hourly = (data as { hourly: { temperature_2m: number[]; weather_code: string[] } }).hourly;
+                // Centerton, AR coordinates
+                const data: any = await fetchWeatherData(36.36, -94.29); 
+                
+                // Use current_weather if available, fallback to hourly
+                const temp = data.current_weather?.temperature || data.hourly?.temperature_2m?.[0];
+                const code = data.current_weather?.weathercode?.toString() || data.hourly?.weather_code?.[0]?.toString() || "0";
 
+<<<<<<< HEAD
                 // Extract temperature and weather code
                 const temperature2m = hourly?.temperature_2m?.[0];
                 const weatherCode = hourly?.weather_code?.[0]; // Replace with actual weather_code from the API response
 
                 const weatherCodeValue = weatherCode || "0"; // Default to "0" if no weather code is available
                 const weatherDetails = weatherCodeMapping[weatherCodeValue] || {
+=======
+                const details = weatherCodeMapping[code] || {
+>>>>>>> 896f041 (ui fix , dockerfile, github action)
                     image: "",
                     description: "Unknown",
                 };
 
                 setWeather({
-                    condition: weatherDetails.description,
-                    temperature: temperature2m ? `${Math.round(temperature2m)}°C` : "--°C",
-                    icon: weatherDetails.image,
+                    condition: details.description,
+                    temperature: temp ? `${Math.round(temp)}°` : "--°",
+                    icon: details.image,
                 });
             } catch (error) {
-                console.error("Error fetching weather data:", error);
-                setWeather({ condition: "Error", temperature: "--°C", icon: "" });
+                setWeather(prev => ({ ...prev, condition: "Offline" }));
             }
         };
 
-        // Fetch weather immediately
         fetchWeather();
-
-        // Set up an interval to fetch weather every 30 seconds
-        const interval = setInterval(fetchWeather, 30000);
-
-        // Cleanup interval on component unmount
+        // Increased interval to 5 minutes to reduce network-driven UI stutters
+        const interval = setInterval(fetchWeather, 300000); 
         return () => clearInterval(interval);
-    }, []); // No need to include weatherCodeMapping in the dependency array
+    }, []);
 
     return (
-        <div className="weather-container" style={{ display: "flex", alignItems: "center" }}>
-            <div className="weather-icon">
+        <div className="flex items-center gap-5 px-6 py-3 bg-back/40 border border-white/20 rounded-3xl shadow-2xl">
+            {/* LARGE ICON - FIXED SIZE */}
+            <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-black/20 border border-white/10">
                 {weather.icon ? (
-                    <img src={weather.icon} alt="Weather Icon" />
+                    <img src={weather.icon} alt="Weather" className="w-10 h-10 object-contain" />
                 ) : (
-                    <span>No Icon</span>
+                    <div className="w-6 h-6 border-2 border-white/20 border-t-cyan-400 rounded-full" />
                 )}
             </div>
-            <div className="weather">
-                <div className="weather-condition">{weather.condition}</div>
-                <div className="weather-temperature">{weather.temperature}</div>
+
+            {/* TEXT CONTENT - BUMPED FOR DISTANCE */}
+            <div className="flex flex-col justify-center">
+                <span className="text-white font-black text-3xl leading-none italic tracking-tighter">
+                    {weather.temperature}
+                </span>
+                <span className="text-[11px] text-cyan-400 font-black uppercase tracking-[0.2em] mt-1 italic">
+                    {weather.condition}
+                </span>
             </div>
         </div>
     );

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SpeedCard from "./SpeedCard";
-import Trash from "./Trash";
 import Recycle from "./Recycle";
-import axios from "axios";
 
 interface LivingRoomProps {
   isDarkMode: boolean;
@@ -10,6 +8,7 @@ interface LivingRoomProps {
 }
 
 const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
+<<<<<<< HEAD
   const [gardenDevice, setGardenDevice] = useState<any>(null);
   const [fountainDevice, setFountainDevice] = useState<any>(null);
   const [garageDevice, setGarageDevice] = useState<any>(null);
@@ -107,98 +106,147 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
         console.log("Event received for Garage Bulb 1:", device);
         setGarageDevice(device);
       }
+=======
+  const [mainDoor, setMainDoor] = useState({ status: false });
+  const [garageDoor, setGarageDoor] = useState({ status: false });
+  const [camera, setCamera] = useState({ status: true });
+  const [garden1, setGarden1] = useState({ status: false });
+  const [garden2, setGarden2] = useState({ status: false });
+  const [garage1, setGarage1] = useState({ status: false });
+  const [garage2, setGarage2] = useState({ status: false });
+  const [pujaLight, setPujaLight] = useState({ status: false });
+  const [fountain, setFountain] = useState({ status: false });
+  const [roboVac, setRoboVac] = useState({ status: false });
+
+  const [trashRecycleData] = useState({
+    trash: { pickUpDate: "Tomorrow", lastPickUp: "Mon", lastStatus: "Success" },
+    recycle: { pickUpDate: "Friday", lastPickUp: "Last Fri", lastStatus: "Success" }
+  });
+
+  useEffect(() => {
+    if (device) {
+      if (device.devId === "main-door") setMainDoor({ status: device.status });
+      if (device.devId === "garage-door") setGarageDoor({ status: device.status });
+      if (device.devId === "garden-1") setGarden1({ status: device.status });
+      if (device.devId === "garden-2") setGarden2({ status: device.status });
+      if (device.devId === "garage-1") setGarage1({ status: device.status });
+      if (device.devId === "garage-2") setGarage2({ status: device.status });
+      if (device.devId === "puja-light") setPujaLight({ status: device.status });
+      if (device.devId === "fountain") setFountain({ status: device.status });
+      if (device.devId === "robo-vac") setRoboVac({ status: device.status });
+>>>>>>> 896f041 (ui fix , dockerfile, github action)
     }
   }, [device]);
 
-  return (
-    <div>
-      <div className="dashboard-header">
-        <h2>Living Room</h2>
-        <button className="add-device-button">+ Add Device</button>
+  const ControlBadge = ({ title, status, onToggle }: { title: string, status: boolean, onToggle: () => void }) => {
+    const getLabel = () => {
+      if (title.includes("Door")) return status ? "OPEN" : "LOCKED";
+      if (title.includes("Camera")) return status ? "LIVE" : "OFFLINE";
+      if (title.includes("Vacuum")) return status ? "CLEANING" : "DOCKED";
+      return status ? "ON" : "OFF";
+    };
+
+    const getColor = () => {
+      if (status) return "text-black bg-cyan-400 border-cyan-300";
+      return "text-white/40 bg-white/5 border-white/10";
+    };
+
+    return (
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggle(); }}
+        className={`text-[11px] font-black px-4 py-2 rounded-xl border uppercase tracking-tighter ${getColor()}`}
+      >
+        {getLabel()}
+      </button>
+    );
+  };
+
+  const DeviceCard = ({ title, icon, status, setStatus, energy }: any) => (
+    <div className={`
+      relative flex flex-col justify-between p-5 min-h-[140px] md:min-h-[160px] 
+      backdrop-blur-md border-2 rounded-[2rem] overflow-hidden transition-all
+      ${status 
+        ? 'bg-cyan-500/20 border-cyan-400/60 shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
+        : 'bg-black/40 border-white/10 shadow-2xl'}
+    `}>
+      <div className="flex justify-between items-start relative z-10">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl ${
+          status ? 'bg-cyan-500/40 text-white' : 'bg-white/5 text-white/40'
+        }`}>
+          {icon}
+        </div>
+        <ControlBadge title={title} status={status} onToggle={() => setStatus(!status)} />
       </div>
 
-      <div className="devices-grid">
+      <div className="mt-4 relative z-10">
+        <div className="font-black text-lg md:text-xl leading-tight italic uppercase tracking-tight text-white drop-shadow-md">
+          {title}
+        </div>
+        <div className={`text-[11px] font-black uppercase tracking-[0.2em] mt-1 ${
+          status ? 'text-cyan-300' : 'text-white/40'
+        }`}>
+          {status ? "SYSTEM ACTIVE" : "STANDBY"}
+        </div>
+      </div>
+      {energy && <div className="absolute right-4 bottom-4 text-[10px] font-black text-white/20 uppercase italic">{energy}</div>}
+    </div>
+  );
+
+  const DeviceGroup = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="bg-black/20 backdrop-blur-lg p-4 rounded-[2.5rem] border-2 border-white/5 shadow-2xl">
+      <p className="text-[12px] uppercase font-black tracking-[0.3em] text-cyan-400 ml-4 mb-4 italic drop-shadow-lg">{title}</p>
+      <div className="grid grid-cols-2 gap-4">{children}</div>
+    </div>
+  );
+
+  return (
+    <div className="w-full pb-12">
+      {/* SECTION HEADER - ENHANCED SIZE */}
+      {/* <div className="flex justify-between items-center mb-10 px-2">
+        <div className="flex flex-col">
+          <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase drop-shadow-2xl">Living Room</h2>
+          <span className="text-xs font-black tracking-[0.5em] text-cyan-500/40 uppercase -mt-1">Zone Control • 01</span>
+        </div>
+        <div className="h-[2px] flex-1 mx-10 bg-gradient-to-r from-cyan-500/50 via-white/10 to-transparent" />
+      </div> */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <SpeedCard />
 
-        {/* Garden Device */}
-        <div
-          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
-        >
-          <div className="device-icon">💡</div>
-          <div className="device-name">Garden</div>
-          <div className="device-status">Active for 3 hours</div>
-          <div className="device-power">5Kwh</div>
-          <label
-            className="toggle-switch"
-            style={{ position: "absolute", top: "15px", right: "15px" }}
-          >
-            <input type="checkbox" checked={gardenDevice?.status} />
-            <span className="slider"></span>
-          </label>
-        </div>
+        <DeviceGroup title="Garden Lighting">
+          <DeviceCard title="Hall" icon="💡" status={garden1.status} setStatus={(val: boolean) => setGarden1({ status: val })} />
+          <DeviceCard title="Garage" icon="💡" status={garden2.status} setStatus={(val: boolean) => setGarden2({ status: val })} />
+        </DeviceGroup>
 
-        {/* Fountain Device */}
-        <div
-          className={`device-card ${isDarkMode ? "dark-mode" : "light-mode"}`}
-        >
-          <div className="device-icon">💦</div>
-          <div className="device-name">Fountain</div>
-          <div className="device-status">Active for 5 hours</div>
-          <div className="device-power">5Kwh</div>
-          <label
-            className="toggle-switch"
-            style={{ position: "absolute", top: "15px", right: "15px" }}
-          >
-            <input type="checkbox" checked={fountainDevice?.status} />
-            <span className="slider"></span>
-          </label>
-        </div>
+        <DeviceGroup title="Garage Area">
+          <DeviceCard title="Light 1" icon="💡" status={garage1.status} setStatus={(val: boolean) => setGarage1({ status: val })} />
+          <DeviceCard title="Light 2" icon="💡" status={garage2.status} setStatus={(val: boolean) => setGarage2({ status: val })} />
+        </DeviceGroup>
 
-        {/* Container for Garage Lights */}
-        <div
-          className={`device-card-container ${
-            isDarkMode ? "dark-mode" : "light-mode"
-          }`}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "10px",
-          }}
-        >
-          {/* Garage Light 1 */}
-          <div className="device-card">
-            <div className="device-icon">💡</div>
-            <div className="device-name">Garage Light 1</div>
-            <div className="device-status">Active for 3 hours</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            >
-              <input type="checkbox" checked={garageDevice?.status} />
-              <span className="slider"></span>
-            </label>
-          </div>
+        {/* HIGH-VIS INDIVIDUAL CARDS */}
+        <DeviceCard title="Robo Vacuum" icon="🧹" status={roboVac.status} setStatus={(val: boolean) => setRoboVac({ status: val })} energy="1.2KW" />
+        <DeviceCard title="Camera" icon="📹" status={camera.status} setStatus={(val: boolean) => setCamera({ status: val })} />
+        <DeviceCard title="Garage Door" icon="🚗" status={garageDoor.status} setStatus={(val: boolean) => setGarageDoor({ status: val })} />
+        <DeviceCard title="Puja Light" icon="🪔" status={pujaLight.status} setStatus={(val: boolean) => setPujaLight({ status: val })} />
+        <DeviceCard title="Fountain" icon="💦" status={fountain.status} setStatus={(val: boolean) => setFountain({ status: val })} energy="2.0KW" />
+        <DeviceCard title="Main Door" icon="🚪" status={mainDoor.status} setStatus={(val: boolean) => setMainDoor({ status: val })} />
 
-          {/* Garage Light 2 */}
-          <div className="device-card">
-            <div className="device-icon">💡</div>
-            <div className="device-name">Garage Light 2</div>
-            <div className="device-status">Active for 3 hours</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            >
-              <input type="checkbox" checked={false} />
-              <span className="slider"></span>
-            </label>
-          </div>
-        </div>
 
-        {/* Trash Component */}
-        <Trash data={trashRecycleData.trash} />
 
-        {/* Recycle Component */}
-        <Recycle data={trashRecycleData.recycle} />
+        {/* TRASH & RECYCLE UNITS */}
+
+                <Recycle
+          data={{
+            pickUpDate: trashRecycleData.trash.pickUpDate,
+            lastStatus: trashRecycleData.trash.lastStatus
+          }} type={"trash"} />
+
+
+        <Recycle
+          data={{
+            pickUpDate: trashRecycleData.recycle.pickUpDate,
+            lastStatus: trashRecycleData.recycle.lastStatus
+          }} type={"recycle"} />
       </div>
     </div>
   );
