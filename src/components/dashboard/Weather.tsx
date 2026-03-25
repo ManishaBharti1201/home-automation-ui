@@ -4,17 +4,17 @@ import React from "react";
 
 const weatherCodeMapping: { [key: string]: { image: string; description: string } } = {
     "0": { image: require("../../assets/weather/clear.png"), description: "Clear sky" },
-    "1": { image: require("../../assets/weather/mostly_clear_day.png"), description: "Mostly Clear" },
-    "2": { image: require("../../assets/weather/partly_cloudy_day.png"), description: "Partly Cloudy" },
-    "3": { image: require("../../assets/weather/cloudy.png"), description: "Overcast" },
-    "45": { image: require("../../assets/weather/fog.png"), description: "Fog" },
-    "48": { image: require("../../assets/weather/fog.png"), description: "Icy Fog" },
-    "51": { image: require("../../assets/weather/drizzle.png"), description: "Drizzle" },
-    "61": { image: require("../../assets/weather/light_rain.png"), description: "Light Rain" },
-    "63": { image: require("../../assets/weather/rain.png"), description: "Rain" },
-    "65": { image: require("../../assets/weather/heavy_rain.png"), description: "Heavy Rain" },
-    "71": { image: require("../../assets/weather/snow_light.png"), description: "Light Snow" },
-    "95": { image: require("../../assets/weather/thunderstorm.png"), description: "Thunderstorm" },
+    // "1": { image: require("../../assets/weather/clear.png"), description: "Mostly Clear" },
+    // "2": { image: require("../../assets/weather/partly_cloudy_day.png"), description: "Partly Cloudy" },
+    // "3": { image: require("../../assets/weather/cloudy.png"), description: "Overcast" },
+    // "45": { image: require("../../assets/weather/fog.png"), description: "Fog" },
+    // "48": { image: require("../../assets/weather/fog.png"), description: "Icy Fog" },
+    // "51": { image: require("../../assets/weather/drizzle.png"), description: "Drizzle" },
+    // "61": { image: require("../../assets/weather/light_rain.png"), description: "Light Rain" },
+    // "63": { image: require("../../assets/weather/rain.png"), description: "Rain" },
+    // "65": { image: require("../../assets/weather/heavy_rain.png"), description: "Heavy Rain" },
+    // "71": { image: require("../../assets/weather/snow_light.png"), description: "Light Snow" },
+    // "95": { image: require("../../assets/weather/thunderstorm.png"), description: "Thunderstorm" },
     // ... add others as needed
 };
 
