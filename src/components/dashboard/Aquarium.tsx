@@ -17,28 +17,12 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
   // Device Mapping Logic
   useEffect(() => {
     if (device) {
-<<<<<<< HEAD
-      if (device.devId === "eb7808944838719ea1yctc") {
-        console.log("Event received for Aqua light:", device);
-        setAquaLightDevice(device);
-      } else if (device.devId === "ebe9d4b02cca4e57ddhwwv") {
-        console.log("Event received for Filter:", device);
-        setFilterDevice(device);
-      } else if (device.devId === "ebf7e89f76b6c51114f2ci") {
-        console.log("Event received for Pump:", device);
-        setPumpDevice(device);
-      } else if (device.devId === "eb4a8281458f2a33f0g2tv") {
-        console.log("Event received for Heater:", device);
-        setHeaterDevice(device);
-      } 
-=======
       if (device.devId === "eb7808944838719ea1yctc") setAquaLightStatus(device.status);
       else if (device.devId === "aquarium_light_2") setAquaLightStatus2(device.status);
       else if (device.devId === "ebe9d4b02cca4e57ddhwwv") setFilterStatus(device.status);
       else if (device.devId === "ebf7e89f76b6c51114f2ci") setPumpStatus(device.status);
       else if (device.devId === "eb4a8281458f2a33f0g2tv") setHeaterStatus(device.status);
       else if (device.devId === "aquarium_leak_sensor_1") setLeakStatus(device.status);
->>>>>>> 896f041 (ui fix , dockerfile, github action)
     }
   }, [device]);
 
@@ -130,81 +114,6 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
         <div className="h-px flex-1 mx-6 bg-gradient-to-r from-white/20 to-transparent" />
       </div> */}
 
-<<<<<<< HEAD
-      <div>
-        <div className="devices-grid">
-          <div className="device-card">
-            <div className="device-icon">💡</div>
-            <div className="device-name">Aqua Light</div>
-            <div className="device-status">Active for 3 hours</div>
-            <div className="device-power">5Kwh</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            >
-              <input type="checkbox" checked={aquaLightDevice?.status}/>
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="device-card">
-            <div className="device-icon">💦</div>
-            <div className="device-name">Filter</div>
-            <div className="device-status">Active for 5 hours</div>
-            <div className="device-power">5Kwh</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            >
-              <input type="checkbox" checked ={filterDevice?.status}/>
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="device-card">
-            <div className="device-icon">🔥</div>
-            <div className="device-name">Pump</div>
-            <div className="device-status">Active for 3 hours</div>
-            <div className="device-power">5Kwh</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            >
-              <input type="checkbox" checked={pumpDevice?.status} />
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div className="device-card">
-            <div className="device-icon">🔥</div>
-            <div className="device-name">Heater</div>
-            <div className="device-status">Active for 3 hours</div>
-            <div className="device-power">5Kwh</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            >
-              <input type="checkbox" checked={heaterDevice?.status}  />
-              <span className="slider"></span>
-            </label>
-          </div>
-
-          <div
-            className="device-card"
-            style={{
-              backgroundColor: backgroundColor, // Dynamically set background color
-              transition: "background-color 0.5s ease", // Smooth transition for blinking effect
-            }}
-          >
-            <div className="device-icon">🔥</div>
-            <div className="device-name">Food</div>
-            <div className="device-power">Last Given: {lastFoodGiven}</div>
-            <label
-              className="toggle-switch"
-              style={{ position: "absolute", top: "15px", right: "15px" }}
-            > Tue Thu Sat
-            </label>
-=======
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 
         <DeviceGroup title="Aquarium Lights">
@@ -226,7 +135,6 @@ const Aquarium: React.FC<AquariumProps> = ({ device }) => {
           <div>
             <div className="font-bold text-lg text-white">Fish Feeder</div>
             <div className="text-white/40 text-[10px] uppercase font-bold tracking-widest">Last: {lastFoodGiven}</div>
->>>>>>> 896f041 (ui fix , dockerfile, github action)
           </div>
         </div>
       </div>

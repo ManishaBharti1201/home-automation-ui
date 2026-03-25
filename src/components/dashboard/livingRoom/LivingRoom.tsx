@@ -8,105 +8,6 @@ interface LivingRoomProps {
 }
 
 const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
-<<<<<<< HEAD
-  const [gardenDevice, setGardenDevice] = useState<any>(null);
-  const [fountainDevice, setFountainDevice] = useState<any>(null);
-  const [garageDevice, setGarageDevice] = useState<any>(null);
-  const [trashRecycleData, setTrashRecycleData] = useState({
-    trash: {
-      pickUpDate: "",
-      lastPickUp: "",
-      lastStatus: "",
-    },
-    recycle: {
-      pickUpDate: "",
-      lastPickUp: "",
-      lastStatus: "",
-    },
-  });
-
-  // Function to check if today is Friday
-  const isFriday = () => {
-    const today = new Date();
-    return today.getDay() === 5; // 5 represents Friday
-  };
-
-  // Function to fetch TrashRecycle data
-  // const fetchTrashRecycleData = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:8081/devices/WM"); // Replace with your actual API endpoint
-
-  //     setTrashRecycleData({
-  //       trash: {
-  //         pickUpDate: (
-  //           response.data as {
-  //              NextTrashService: string ;
-  //           }
-  //         ).NextTrashService,
-  //         lastPickUp: (
-  //           response.data as {
-  //             PreviousTrashService: string ;
-  //           }
-  //         ).PreviousTrashService,
-  //        lastStatus: (
-  //           response.data as {
-  //             PreviousTrashStatus: string ;
-  //           }
-  //         ).PreviousTrashStatus,
-  //       },
-  //       recycle: {
-  //         pickUpDate: (
-  //           response.data as {
-  //             NextRecyclingService: string ;
-  //           }
-  //         ).NextRecyclingService,
-  //         lastPickUp: (
-  //           response.data as {
-  //             PreviousRecyclingService: string ;
-  //           }
-  //         ).PreviousRecyclingService,
-  //         lastStatus: (
-  //           response.data as {
-  //             PreviousRecyclingStatus: string ;
-  //           }
-  //         ).PreviousRecyclingStatus,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error fetching TrashRecycle data:", error);
-  //   }
-  // };
-
-  useEffect(() => {
-    // Check if today is Friday and fetch data
-    // if (isFriday()) {
-    //  fetchTrashRecycleData();
-    //}
-
-    // Set up an interval to check every day at midnight
-    const interval = setInterval(() => {
-      if (isFriday()) {
-      //  fetchTrashRecycleData();
-      }
-    }, 24 * 60 * 60 * 1000); // Check every 24 hours
-
-    return () => clearInterval(interval); // Cleanup interval on component unmount
-  }, []);
-
-  // Update state based on the device data
-  useEffect(() => {
-    if (device) {
-      if (device.devId === "eba76027112512d0c4yste") {
-        console.log("Event received for Garden:", device);
-        setGardenDevice(device);
-      } else if (device.devId === "eb983962fe625a3cecm94t") {
-        console.log("Event received for Fountain:", device);
-        setFountainDevice(device);
-      } else if (device.devId === "062025582462ab4e42ad") {
-        console.log("Event received for Garage Bulb 1:", device);
-        setGarageDevice(device);
-      }
-=======
   const [mainDoor, setMainDoor] = useState({ status: false });
   const [garageDoor, setGarageDoor] = useState({ status: false });
   const [camera, setCamera] = useState({ status: true });
@@ -134,7 +35,6 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device }) => {
       if (device.devId === "puja-light") setPujaLight({ status: device.status });
       if (device.devId === "fountain") setFountain({ status: device.status });
       if (device.devId === "robo-vac") setRoboVac({ status: device.status });
->>>>>>> 896f041 (ui fix , dockerfile, github action)
     }
   }, [device]);
 
