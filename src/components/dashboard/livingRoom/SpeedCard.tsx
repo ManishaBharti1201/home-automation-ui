@@ -1,25 +1,51 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { RefreshCw } from 'lucide-react';
 import wifi from "../../../assets/wifi/wifi.png";
 import noWifi from "../../../assets/wifi/no-wifi.png";
 
-const SpeedCard = () => {
+interface SpeedCardProps {
+  onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
+}
+
+const SpeedCard: React.FC<SpeedCardProps> = ({ onLog }) => {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [metrics, setMetrics] = useState({ down: 852.4, up: 42.1, ping: 12 });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const checkNetworkStatus = useCallback(async () => {
     try {
       await fetch("https://www.google.com/favicon.ico", { method: "HEAD", mode: "no-cors", cache: "no-store" });
+      if (!isOnline) onLog?.('SYSTEM', 'Network Restored', 'External connectivity detected');
       setIsOnline(true);
     } catch {
+      if (isOnline) onLog?.('ERROR', 'Network Offline', 'Connectivity check failed');
       setIsOnline(false);
     }
-  }, []);
+  }, [onLog, isOnline]);
 
   useEffect(() => {
     checkNetworkStatus();
     const interval = setInterval(checkNetworkStatus, 30000); // Check every 30s to reduce jitter
     return () => clearInterval(interval);
   }, [checkNetworkStatus]);
+
+  const refreshMetrics = () => {
+    if (!isOnline || isRefreshing) return;
+    setIsRefreshing(true);
+    onLog?.('API', 'Starting Speed Test', 'Simulating network metrics...');
+    
+    // Simulate a network speed test delay
+    setTimeout(() => {
+      const newMetrics = {
+        down: Number((800 + Math.random() * 150).toFixed(1)),
+        up: Number((35 + Math.random() * 15).toFixed(1)),
+        ping: Math.floor(8 + Math.random() * 12)
+      };
+      setMetrics(newMetrics);
+      setIsRefreshing(false);
+      onLog?.('UPDATE', 'Speed Metrics Updated', `Ping: ${newMetrics.ping}ms`);
+    }, 1500);
+  };
 
   return (
     <div className={`
@@ -34,17 +60,23 @@ const SpeedCard = () => {
           </div>
           <div>
             <h3 className="text-white font-black text-xl italic uppercase tracking-tighter drop-shadow-md">Network</h3>
-            <p className={`text-[11px] uppercase tracking-[0.2em] font-black mt-1 ${isOnline ? 'text-green-400/60' : 'text-red-400'}`}>
-              {isOnline ? "System Stable" : "Connection Lost"}
-            </p>
+            <div className={`px-3 py-1 rounded-lg text-[10px] font-black border shadow-lg mt-1 w-fit ${
+              isOnline ? 'bg-green-500/80 text-white border-green-400' : 'bg-red-600 text-white border-red-500'
+            }`}>
+                {isOnline ? "ONLINE" : "OFFLINE"}
+            </div>
           </div>
         </div>
         
-        <div className={`px-4 py-2 rounded-xl text-xs font-black border shadow-lg ${
-          isOnline ? 'bg-green-500/80 text-white border-green-400' : 'bg-red-600 text-white border-red-500'
-        }`}>
-            {isOnline ? "ONLINE" : "OFFLINE"}
-        </div>
+        <button 
+          onClick={refreshMetrics}
+          disabled={isRefreshing || !isOnline}
+          className={`p-2.5 rounded-xl border border-white/10 bg-white/5 transition-all active:scale-95 
+            ${isRefreshing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 hover:border-white/20'}`}
+          title="Refresh Speed"
+        >
+          <RefreshCw size={18} className={`text-white/60 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </button>
       </div>
 
       {/* METRICS */}

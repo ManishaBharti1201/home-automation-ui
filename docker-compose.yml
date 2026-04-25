@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  ui:
+    image: bhanuchandra2010/home-automation-ui:latest
+    container_name: home-automation-ui
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - gateway
+
+  gateway:
+    image: bhanuchandra2010/tuya-gateway:latest
+    container_name: tuya-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - TUYA_CLIENT_ID=${TUYA_CLIENT_ID}
+      - TUYA_CLIENT_SECRET=${TUYA_CLIENT_SECRET}
+      - TUYA_HOST=${TUYA_HOST:-openapi.tuyaus.com}
+      - EXTERNAL_SSE_URL=${EXTERNAL_SSE_URL}
+      - PORT=8000
+    volumes:
+      - ./streams:/app/streams
+    restart: always
+
+volumes:
+  streams:

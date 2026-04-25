@@ -65,11 +65,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
+      - name: Build and push Gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: ./gateway
+          file: ./gateway/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
+
       - name: Build and push BFF/Frontend
         uses: docker/build-push-action@v4
         with:
+          context: .
+          file: ./dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
+          build-args: |
+            REACT_APP_GATEWAY_URL=${{ secrets.GATEWAY_URL }}
 
       - name: Notify Job Status
         if: always()
@@ -168,6 +180,18 @@ jobs:
     needs: [init-notifications, build-and-push]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.yml to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "~/home-automation-ui"
+
       - name: SSH and Update VM
         uses: appleboy/ssh-action@v1.0.3
         with:

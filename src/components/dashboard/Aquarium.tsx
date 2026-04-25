@@ -1,142 +1,164 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 interface AquariumProps {
   device: any;
+  onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
 }
 
-const Aquarium: React.FC<AquariumProps> = ({ device }) => {
+const Aquarium: React.FC<AquariumProps> = ({ device, onLog }) => {
   const [lastFoodGiven, setLastFoodGiven] = useState<string>("March 02");
   const [isFeeding, setIsFeeding] = useState<boolean>(false);
-  const [aquaLightStatus, setAquaLightStatus] = useState(false);
-  const [aquaLightStatus2, setAquaLightStatus2] = useState(false);
-  const [heaterStatus, setHeaterStatus] = useState(true);
-  const [filterStatus, setFilterStatus] = useState(true);
-  const [pumpStatus, setPumpStatus] = useState(true);
-  const [leakStatus, setLeakStatus] = useState(false);
+  const [aquaLight, setAquaLight] = useState({ name: "Upper Light", status: false });
+  const [aquaLight2, setAquaLight2] = useState({ name: "Lower Light", status: false });
+  const [heater, setHeater] = useState({ name: "Heater", status: true });
+  const [filter, setFilter] = useState({ name: "Filter", status: true });
+  const [pump, setPump] = useState({ name: "Oxygen", status: true });
+  const [leak, setLeak] = useState({ name: "Leak Sensor", status: false });
 
   // Device Mapping Logic
   useEffect(() => {
     if (device) {
-      if (device.devId === "eb7808944838719ea1yctc") setAquaLightStatus(device.status);
-      else if (device.devId === "aquarium_light_2") setAquaLightStatus2(device.status);
-      else if (device.devId === "ebe9d4b02cca4e57ddhwwv") setFilterStatus(device.status);
-      else if (device.devId === "ebf7e89f76b6c51114f2ci") setPumpStatus(device.status);
-      else if (device.devId === "eb4a8281458f2a33f0g2tv") setHeaterStatus(device.status);
-      else if (device.devId === "aquarium_leak_sensor_1") setLeakStatus(device.status);
+      Object.values(device).forEach((update: any) => {
+        const devId = update.devId || update.id;
+        const isOn = update.status?.value !== undefined ? update.status.value : update.isOn;
+        const name = update.name;
+
+        const mapState = (setter: any, defaultName: string) => setter((prev: any) => ({ name: name || prev.name || defaultName, status: isOn }));
+
+        if (devId === "eb7808944838719ea1yctc") mapState(setAquaLight, "Upper Light");
+        else if (devId === "ebef989f18f6b4123bmqix") mapState(setAquaLight2, "Lower Light");
+        else if (devId === "ebe9d4b02cca4e57ddhwwv") mapState(setFilter, "Filter");
+        else if (devId === "ebf7e89f76b6c51114f2ci") mapState(setPump, "Oxygen");
+        else if (devId === "eb4a8281458f2a33f0g2tv") mapState(setHeater, "Heater");
+        else if (devId === "eb82de64788b89910dj0ri") mapState(setLeak, "Leak Sensor");
+      });
     }
   }, [device]);
+
+  const handleToggle = async (deviceId: string, newValue: boolean, setter: any, current: any, code: string = "switch_1") => {
+    setter({ ...current, status: newValue });
+    onLog?.('API', `Request: Toggle ${deviceId}`, `Action: ${newValue ? 'ON' : 'OFF'} (Code: ${code})`);
+    try {
+      await axios.post("http://localhost:8000/api/device/control", {
+        deviceId,
+        code,
+        value: newValue
+      });
+    } catch (err) {
+      console.error(`Failed to control ${deviceId}`, err);
+      onLog?.('ERROR', `API Failure: ${deviceId}`, (err as any).message);
+      setter({ ...current, status: !newValue });
+    }
+  };
 
   const handleManualFeed = () => {
     setIsFeeding(true);
     const today = new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit" });
     setLastFoodGiven(today);
-
-    // Voice feedback
     const utterance = new SpeechSynthesisUtterance("Feeding the fish now");
     speechSynthesis.speak(utterance);
-
     setTimeout(() => setIsFeeding(false), 5000);
   };
 
-  // Status Badge Component (Matches Living Room)
-  const ControlBadge = ({ title, status, onToggle }: any) => {
-    const getLabel = () => {
-      if (title.includes("Light")) return status ? "ON" : "OFF";
-      if (title.includes("Heater")) return status ? "WARMING" : "STANDBY";
-      if (title.includes("Filter")) return status ? "ACTIVE" : "OFF";
-      if (title.includes("Leak")) return status ? "DETECTED" : "SAFE";
-      return status ? "FLOWING" : "IDLE";
-    };
-
-    const getColor = () => {
-      if (title.includes("Leak") && status) return "text-red-400 bg-red-400/20 border-red-400/30";
-      if (status) return "text-cyan-400 bg-cyan-400/20 border-cyan-400/30";
-      return "text-white/40 bg-white/5 border-white/10";
-    };
-
-    return (
-      <button
-        onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        className={`text-[10px] font-black px-3 py-1 rounded-lg border transition-all active:scale-95 ${getColor()}`}
-      >
-        {getLabel()}
-      </button>
-    );
-  };
-
-  const AquaCard = ({ title, icon, status, setStatus, subtext, energy }: any) => (
-    <div className="relative flex flex-col justify-between p-4 min-h-[140px] bg-white/10 backdrop-blur-md border border-white/20 shadow-lg rounded-2xl text-white group transition-all duration-300">
-      <div className="flex justify-between items-start">
-        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl transition-transform group-hover:scale-110">
-          {icon}
-        </div>
-        <ControlBadge title={title} status={status} onToggle={() => setStatus(!status)} />
-      </div>
-      <div>
-        <div className="font-bold text-base md:text-lg leading-tight">{title}</div>
-        <div className="text-white/40 text-[10px] uppercase font-bold tracking-widest mt-0.5">
-          {subtext || (status ? "Normal" : "Stopped")}
+  const AquaCard = ({ title, icon, status, setStatus, subtext, energy, isRed }: any) => (
+    <div 
+      onClick={() => setStatus(!status)}
+      className={`
+      relative flex flex-col justify-between p-6 min-h-[170px] cursor-pointer
+      backdrop-blur-2xl border-2 rounded-[2.5rem] overflow-hidden transition-all duration-500
+      ${status 
+        ? isRed ? 'bg-red-500/10 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]' 
+                : 'bg-cyan-500/10 border-cyan-400/50 shadow-[0_0_40px_rgba(6,182,212,0.15)]' 
+        : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 shadow-2xl'}
+    `}>
+      <div className="flex justify-between items-start relative z-10">
+        <div className="relative">
+          {status && <div className={`absolute inset-0 blur-xl rounded-full ${isRed ? 'bg-red-500/20' : 'bg-cyan-400/20'}`} />}
+          <div className={`
+            relative w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500 transform -rotate-3
+            ${status 
+              ? isRed ? 'bg-gradient-to-tr from-red-600 to-red-400 text-white' : 'bg-gradient-to-tr from-cyan-500 to-cyan-300 text-slate-900' 
+              : 'bg-white/10 border border-white/10 text-white/40'
+            }
+           shadow-lg`}>
+            {icon}
+          </div>
         </div>
       </div>
-      {energy && <div className="absolute right-3 bottom-3 text-[10px] font-bold text-cyan-300/40">{energy}</div>}
+
+      <div className="mt-4 relative z-10">
+        <div className={`font-black text-xl leading-tight uppercase italic tracking-tight transition-colors ${status ? 'text-white' : 'text-white/60'}`}>
+          {title}
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <div className={`w-1.5 h-1.5 rounded-full ${status ? isRed ? 'bg-red-500 animate-pulse' : 'bg-cyan-400 animate-pulse' : 'bg-white/10'}`} />
+          <div className={`text-xs font-bold uppercase tracking-widest ${status ? isRed ? 'text-red-400' : 'text-cyan-400' : 'text-white/20'}`}>
+            {subtext || (status ? "Active" : "Stopped")}
+          </div>
+        </div>
+      </div>
+      {energy && <div className="absolute right-6 bottom-6 text-[9px] font-black text-white/10 uppercase italic">{energy}</div>}
     </div>
   );
 
   const DeviceGroup = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-white/5 backdrop-blur-sm p-2 rounded-2xl border border-white/5">
-      <p className="text-[11px] uppercase font-black tracking-[0.2em] text-white/20 ml-2 mb-2">{title}</p>
-      <div className="grid grid-cols-2 gap-2">{children}</div>
-    </div>
-  );
-
-  const DeviceCard = ({ title, icon, status, setStatus, isSmall }: any) => (
-    <div className={`
-      relative flex flex-col justify-between transition-all duration-300
-      bg-white/10 backdrop-blur-md border border-white/20 shadow-lg rounded-2xl text-white group
-      ${isSmall ? 'p-3 min-h-[115px]' : 'p-4 min-h-[140px]'}
-    `}>
-      <div className="flex justify-between items-start">
-        <div className={`rounded-xl bg-white/10 flex items-center justify-center transition-transform group-hover:scale-110 ${isSmall ? 'w-8 h-8 text-base' : 'w-10 h-10 text-xl'}`}>
-          {icon}
-        </div>
-        <ControlBadge title={title} status={status} onToggle={() => setStatus(!status)} />
-      </div>
-      <div>
-        <div className="font-bold text-base md:text-lg leading-tight">{title}</div>
-      </div>
+    <div className="bg-slate-900/40 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-2xl">
+      <p className="text-lg uppercase font-black tracking-[0.3em] text-cyan-400/60 ml-2 mb-4 italic">{title}</p>
+      <div className="grid grid-cols-2 gap-4">{children}</div>
     </div>
   );
 
   return (
-    <div className="w-full pb-8">
-      {/* <div className="flex justify-between items-center mb-6 px-1">
-        <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-md italic">AQUARIUM</h2>
-        <div className="h-px flex-1 mx-6 bg-gradient-to-r from-white/20 to-transparent" />
-      </div> */}
+    <div className="w-full px-2 lg:px-4 pb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-
-        <DeviceGroup title="Aquarium Lights">
-          <DeviceCard title="Upper Light" icon="💡" status={aquaLightStatus} setStatus={setAquaLightStatus} isSmall />
-          <DeviceCard title="Lower Light" icon="💡" status={aquaLightStatus2} setStatus={setAquaLightStatus2} isSmall />
+        <DeviceGroup title="Lights">
+          <AquaCard title={aquaLight.name} icon="💡" status={aquaLight.status} setStatus={(val: boolean) => handleToggle("eb7808944838719ea1yctc", val, setAquaLight, aquaLight)} />
+          <AquaCard title={aquaLight2.name} icon="💡" status={aquaLight2.status} setStatus={(val: boolean) => handleToggle("ebef989f18f6b4123bmqix", val, setAquaLight2, aquaLight2)} />
         </DeviceGroup>
-        <AquaCard title="Heater" icon="🌡️" status={heaterStatus} setStatus={setHeaterStatus} subtext={heaterStatus ? "Warming" : "Standby"} energy="100W" />
-        <AquaCard title="Filter" icon="🌀" status={filterStatus} setStatus={setFilterStatus} energy="25W" />
-        <AquaCard title="Oxygen" icon="💧" status={pumpStatus} setStatus={setPumpStatus} energy="12W" />
-        <AquaCard title="Leak Sensor" icon="⚠️" status={leakStatus} setStatus={setLeakStatus} subtext={leakStatus ? "Leak Detected!" : "Dry"} />
 
-        <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col justify-between min-h-[140px]">
-          <div className="flex justify-between items-start">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">🍱</div>
-            <button onClick={handleManualFeed} disabled={isFeeding} className="text-[10px] font-black px-3 py-1 rounded-lg border border-cyan-400/30 bg-cyan-400/20 text-cyan-400">
-              {isFeeding ? "FEEDING..." : "FEED NOW"}
+        <AquaCard title={heater.name} icon="🌡️" status={heater.status} setStatus={(val: boolean) => handleToggle("eb4a8281458f2a33f0g2tv", val, setHeater, heater)} subtext={heater.status ? "Warming" : "Standby"} energy="100W" />
+        <AquaCard title={filter.name} icon="🌀" status={filter.status} setStatus={(val: boolean) => handleToggle("ebe9d4b02cca4e57ddhwwv", val, setFilter, filter)} energy="25W" />
+        <AquaCard title={pump.name} icon="💧" status={pump.status} setStatus={(val: boolean) => handleToggle("ebf7e89f76b6c51114f2ci", val, setPump, pump)} energy="12W" />
+        
+        {/* Special Red Theme for Leak Sensor */}
+        <AquaCard 
+          title={leak.name} 
+          icon="⚠️" 
+          status={leak.status} 
+          setStatus={() => {}} 
+          subtext={leak.status ? "Leak Detected!" : "Dry"} 
+          isRed={leak.status} 
+          isGreen={!leak.status} 
+          isBlinking={leak.status} 
+        />
+
+        {/* FEEDER CARD */}
+        <div className={`
+          relative flex flex-col justify-between p-6 min-h-[170px]
+          backdrop-blur-xl border-2 rounded-[2.5rem] transition-all duration-500
+          ${isFeeding ? 'bg-slate-900 border-orange-500/50 shadow-[0_20px_50px_rgba(249,115,22,0.2)]' : 'bg-slate-800/20 border-white/10 shadow-2xl'}
+        `}>
+          <div className="flex justify-between items-start relative z-10">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all transform -rotate-3 ${isFeeding ? 'bg-orange-500 text-white animate-bounce' : 'bg-white/10 text-white/40 border border-white/10'}`}>
+              🍱
+            </div>
+            <button 
+              onClick={handleManualFeed} 
+              disabled={isFeeding} 
+              className={`text-[9px] font-black px-4 py-2 rounded-lg border uppercase tracking-widest transition-all 
+                ${isFeeding ? 'bg-orange-500 border-orange-400 text-white' : 'bg-white/5 border-white/20 text-white/60 hover:bg-white/10'}`}
+            >
+              {isFeeding ? "FEEDING" : "FEED NOW"}
             </button>
           </div>
-          <div>
-            <div className="font-bold text-lg text-white">Fish Feeder</div>
-            <div className="text-white/40 text-[10px] uppercase font-bold tracking-widest">Last: {lastFoodGiven}</div>
+          <div className="mt-4 z-10">
+            <div className="font-black text-xl text-white italic uppercase tracking-tight">Fish Feeder</div>
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-1">Last: {lastFoodGiven}</div>
           </div>
         </div>
+
       </div>
     </div>
   );

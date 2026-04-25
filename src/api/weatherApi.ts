@@ -6,15 +6,27 @@ export const fetchWeatherData = async (latitude: number, longitude: number) => {
     const params = {
         latitude,
         longitude,
+        current_weather: true,
+        daily: [
+            "weather_code",
+            "temperature_2m_max",
+            "temperature_2m_min",
+            "precipitation_probability_max",
+            "wind_speed_10m_max",
+            "wind_gusts_10m_max",
+            "rain_sum"
+        ],
         hourly: [
             "temperature_2m",
             "relative_humidity_2m",
-            "dew_point_2m",
             "apparent_temperature",
-            "wind_speed_10m",
+            "weather_code",
             "rain",
-            "showers",
             "snowfall",
+            "precipitation_probability",
+            "surface_pressure",
+            "visibility",
+            "wind_speed_10m",
         ],
     };
 
@@ -22,6 +34,7 @@ export const fetchWeatherData = async (latitude: number, longitude: number) => {
         console.log("Fetching weather data with params:", params);
         // Make the API request
         const response = await axios.get(API_BASE_URL, { params });
+        console.log("Weather API Response:", response.data);
         return response.data;
     } catch (error) {
         console.error("Error fetching weather data:", error);
