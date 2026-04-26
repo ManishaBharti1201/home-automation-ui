@@ -46,11 +46,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Build Web Assets
+        run: npm run build # This creates the ./build folder Capacitor is looking for
+
       - name: Install Capacitor CLI
         run: npm install @capacitor/cli @capacitor/android
 
       - name: Add Android Platform
-        run: npx cap add android || echo "Android platform already exists, skipping add..."
+        run: npx cap add android || echo "Android platform already exists..."
 
       - name: Capacitor Sync
         run: npx cap sync android
@@ -97,20 +100,37 @@ jobs:
           username: ${{ secrets.VM_USER }}
           password: ${{ secrets.VM_PASSWORD }}
           script: |
-            mkdir -p ~/docker/home-automation
+            mkdir -p ~/docker/home-automation/data/streams
             cd ~/docker/home-automation
             
-            # Create a UI-specific compose file so Java stays running
-            cat << 'EOF' > docker-compose-ui.yml
+            # Create a combined compose file for UI and Gateway
+            cat << EOF > docker-compose-ui-gateway.yml
             services:
               ui:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
                 container_name: home-automation-ui
                 ports:
-                  - "3000:3000"
+                  - "3000:80"
+                restart: unless-stopped
+                depends_on:
+                  - gateway
+
+              gateway:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
+                container_name: tuya-gateway
+                ports:
+                  - "8000:8000"
+                environment:
+                  - TUYA_CLIENT_ID=${{ secrets.TUYA_CLIENT_ID }}
+                  - TUYA_CLIENT_SECRET=${{ secrets.TUYA_CLIENT_SECRET }}
+                  - TUYA_HOST=openapi.tuyaus.com
+                  - EXTERNAL_SSE_URL=${{ secrets.EXTERNAL_SSE_URL }}
+                  - PORT=8000
+                volumes:
+                  - ./data/streams:/app/streams
                 restart: unless-stopped
             EOF
             
-            # Pull and Update ONLY the UI
-            docker compose -f docker-compose-ui.yml pull
-            docker compose -f docker-compose-ui.yml up -d
+            # Pull and Update the stack
+            docker compose -f docker-compose-ui-gateway.yml pull
+            docker compose -f docker-compose-ui-gateway.yml up -d
