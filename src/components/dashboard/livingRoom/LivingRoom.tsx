@@ -10,7 +10,7 @@ interface LivingRoomProps {
   onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
 }
 
-const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8000";
+const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
 
 const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) => {
   const [mainDoor, setMainDoor] = useState({ name: "Main Door", status: false });

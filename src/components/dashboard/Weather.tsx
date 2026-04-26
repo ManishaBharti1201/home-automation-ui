@@ -12,16 +12,25 @@ const weatherCodeMapping: { [key: string]: { image: string; description: string 
     "51": { image: require("../../assets/weather/drizzle.png"), description: "Light Drizzle" },
     "53": { image: require("../../assets/weather/drizzle.png"), description: "Drizzle" },
     "55": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Drizzle" },
+    "56": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Drizzle" },
+    "57": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Drizzle" },
     "61": { image: require("../../assets/weather/drizzle.png"), description: "Light Rain" },
     "63": { image: require("../../assets/weather/drizzle.png"), description: "Rain" },
     "65": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Rain" },
+    "66": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Rain" },
+    "67": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Rain" },
     "71": { image: require("../../assets/weather/fog.png"), description: "Light Snow" },
     "73": { image: require("../../assets/weather/fog.png"), description: "Snow" },
     "75": { image: require("../../assets/weather/fog.png"), description: "Heavy Snow" },
+    "77": { image: require("../../assets/weather/fog.png"), description: "Snow Grains" },
     "80": { image: require("../../assets/weather/drizzle.png"), description: "Rain Showers" },
     "81": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Showers" },
     "82": { image: require("../../assets/weather/drizzle.png"), description: "Violent Showers" },
+    "85": { image: require("../../assets/weather/fog.png"), description: "Snow Showers" },
+    "86": { image: require("../../assets/weather/fog.png"), description: "Snow Showers" },
     "95": { image: require("../../assets/weather/thunderstorm.png"), description: "Thunderstorm" },
+    "96": { image: require("../../assets/weather/thunderstorm.png"), description: "Storm & Hail" },
+    "99": { image: require("../../assets/weather/thunderstorm.png"), description: "Heavy Storm" },
 };
 
 interface WeatherProps {
@@ -91,7 +100,7 @@ const Weather: React.FC<WeatherProps> = ({ onConditionChange, onLog }) => {
                 <span className="text-white font-black text-3xl leading-none italic tracking-tighter">
                     {weather.temperature}
                 </span>
-                <span className="text-[11px] text-cyan-400 font-black uppercase tracking-[0.2em] mt-1 italic">
+                <span className="text-[15px] text-cyan-400 font-black uppercase tracking-[0.2em] mt-1 italic">
                     {weather.condition}
                 </span>
             </div>

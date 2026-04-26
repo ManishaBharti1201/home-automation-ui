@@ -8,9 +8,19 @@ const sunnyVideo = require("../assets/weather/sunny.mp4");
 const rainyVideo = require("../assets/weather/rainy.mp4");
 const cloudyVideo = require("../assets/weather/cloudy.mp4");
 const thunderVideo = require("../assets/weather/thunderstorm.mp4");
+const foggyVideo = require("../assets/weather/foggy.mp4");
+const heavyDrizzleVideo = require("../assets/weather/heavy-drizzle.mp4");
+const heavyRainVideo = require("../assets/weather/heavy-rain.mp4");
+const heavyShowersVideo = require("../assets/weather/heavy-showers.mp4");
+const heavySnowVideo = require("../assets/weather/heavy-snow.mp4");
+const mainlyClearVideo = require("../assets/weather/mainly-clear.mp4");
+const overcastVideo = require("../assets/weather/overcast.mp4");
+const rainShowersVideo = require("../assets/weather/rain-showers.mp4");
+const rimeFogVideo = require("../assets/weather/rime-fog.mp4");
+
 
 // Hardcoded Gateway URL
-const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8000";
+const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
 
 const Home: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -102,12 +112,51 @@ const Home: React.FC = () => {
 
   const currentVideo = useMemo(() => {
     const code = parseInt(weatherCode);
-    if (code === 0 || code === 1 || code === 2) return sunnyVideo;
-    if (code === 3 || code === 45 || code === 48) return cloudyVideo;
-    if (code >= 51 && code <= 65) return rainyVideo;
-    if (code >= 80 && code <= 82) return rainyVideo;
-    if (code === 95) return thunderVideo;
-    return sunnyVideo;
+    switch (code) {
+      case 0: 
+        return sunnyVideo;
+      case 1: 
+        return mainlyClearVideo;
+      case 2: 
+        return cloudyVideo;
+      case 3: 
+        return overcastVideo;
+      case 45: 
+        return foggyVideo;
+      case 48: 
+        return rimeFogVideo;
+      case 51:
+      case 53:
+      case 56:
+      case 57:
+      case 61:
+      case 63: 
+        return rainyVideo;
+      case 55: 
+        return heavyDrizzleVideo;
+      case 65:
+      case 66:
+      case 67: 
+        return heavyRainVideo;
+      case 71:
+      case 73:
+      case 75:
+      case 77:
+      case 85:
+      case 86: 
+        return heavySnowVideo;
+      case 80: 
+        return rainShowersVideo;
+      case 81:
+      case 82: 
+        return heavyShowersVideo;
+      case 95:
+      case 96:
+      case 99: 
+        return thunderVideo;
+      default: 
+        return sunnyVideo;
+    }
   }, [weatherCode]);
 
   // Force video reload when source changes
@@ -123,6 +172,15 @@ const Home: React.FC = () => {
     if (hour < 17) return "GOOD AFTERNOON";
     if (hour < 21) return "GOOD EVENING";
     return "GOOD NIGHT";
+  }, []);
+
+  const currentDate = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      weekday: 'long'
+    });
   }, []);
 
   return (
@@ -165,7 +223,7 @@ const Home: React.FC = () => {
             </div>
             <div className="hidden xl:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
                <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-300">
-                  <span className="text-xs font-black">CAL</span>
+                  <span className="text-xs font-black">✈️</span>
                </div>
                <div className="flex flex-col">
                   <span className="text-base font-black italic uppercase leading-none text-white/80">Flight to Patna</span>
@@ -176,15 +234,12 @@ const Home: React.FC = () => {
 
           {/* CENTER: BRANDING & GREETING */}
           <div className="hidden md:flex flex-col items-center flex-[1.2] gap-1">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <span className="text-xl font-black italic text-white">L</span>
-              </div>
+            <div className="flex items-center gap-3">              
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
-                {greeting}
+                {greeting} BHANU
               </h1>
             </div>
-            <span className="text-[9px] font-black tracking-[0.5em] text-white/20 uppercase">Lumina Home Control • v3.0</span>
+            <span className="text-[16px] font-black tracking-[0.5em] text-white/80 uppercase"> {currentDate}</span>
           </div>
 
           {/* RIGHT: SYSTEM STATUS */}

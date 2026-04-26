@@ -12,14 +12,25 @@ const weatherCodeMapping: { [key: string]: { image: string; description: string 
     "51": { image: require("../../assets/weather/drizzle.png"), description: "Light Drizzle" },
     "53": { image: require("../../assets/weather/drizzle.png"), description: "Drizzle" },
     "55": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Drizzle" },
+    "56": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Drizzle" },
+    "57": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Drizzle" },
     "61": { image: require("../../assets/weather/drizzle.png"), description: "Light Rain" },
     "63": { image: require("../../assets/weather/drizzle.png"), description: "Rain" },
     "65": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Rain" },
+    "66": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Rain" },
+    "67": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Rain" },
     "71": { image: require("../../assets/weather/fog.png"), description: "Light Snow" },
     "73": { image: require("../../assets/weather/fog.png"), description: "Snow" },
     "75": { image: require("../../assets/weather/fog.png"), description: "Heavy Snow" },
     "77": { image: require("../../assets/weather/fog.png"), description: "Snow Grains" },
+    "80": { image: require("../../assets/weather/drizzle.png"), description: "Rain Showers" },
+    "81": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Showers" },
+    "82": { image: require("../../assets/weather/drizzle.png"), description: "Violent Showers" },
+    "85": { image: require("../../assets/weather/fog.png"), description: "Snow Showers" },
+    "86": { image: require("../../assets/weather/fog.png"), description: "Snow Showers" },
     "95": { image: require("../../assets/weather/thunderstorm.png"), description: "Thunderstorm" },
+    "96": { image: require("../../assets/weather/thunderstorm.png"), description: "Storm & Hail" },
+    "99": { image: require("../../assets/weather/thunderstorm.png"), description: "Heavy Storm" },
 };
 
 interface WeatherDetailProps {
@@ -79,6 +90,9 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
         precipitation_probability: []
     };
     
+    const nextHourIndex = hourly.time.findIndex((t: string) => new Date(t) > new Date());
+    const startIndex = nextHourIndex === -1 ? 0 : nextHourIndex;
+
     const weatherCode = current.weathercode?.toString() || daily.weather_code[0]?.toString() || "0";
     const weatherInfo = weatherCodeMapping[weatherCode] || { description: "Unknown", image: "" };
 
@@ -120,7 +134,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
                                 <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
                                 {weatherInfo.description}
                             </p>
-                            <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] mt-1">
+                            <p className="text-[15px] font-bold text-white/60 uppercase tracking-[0.2em] mt-1">
                                 Feels like {Math.round(hourly.apparent_temperature[0] || current.temperature)}°C
                             </p>
                         </div>
@@ -140,32 +154,32 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
             {/* MIDDLE SECTION: EXTRA METRICS */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                 <div className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex flex-col justify-between min-h-[120px]">
-                    <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest italic">Rain Chance</span>
+                    <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">Rain Chance</span>
                     <p className="text-3xl font-black text-white italic mt-2">{hourly.precipitation_probability[0] || daily.precipitation_probability_max[0]}%</p>
                     <div className="h-1.5 w-full bg-white/10 rounded-full mt-4 overflow-hidden">
                         <div className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" style={{ width: `${hourly.precipitation_probability[0] || daily.precipitation_probability_max[0]}%` }} />
                     </div>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex flex-col justify-between min-h-[120px]">
-                    <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest italic">Humidity</span>
+                    <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">Humidity</span>
                     <p className="text-3xl font-black text-white italic mt-2">{hourly.relative_humidity_2m[0]}%</p>
                     <div className="h-1.5 w-full bg-white/10 rounded-full mt-4 overflow-hidden">
                         <div className="h-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ width: `${hourly.relative_humidity_2m[0]}%` }} />
                     </div>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex flex-col justify-between min-h-[120px]">
-                    <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest italic">Visibility</span>
+                    <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">Visibility</span>
                     <p className="text-3xl font-black text-white italic mt-2">
                         {Math.round((hourly.visibility[0] || 10000) / 1000)}<span className="text-sm ml-1 opacity-40 uppercase">km</span>
                     </p>
-                    <p className="text-[10px] font-bold text-white/20 uppercase mt-auto">Horizon Range</p>
+                    <p className="text-[15px] font-bold text-white/20 uppercase mt-auto">Horizon Range</p>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex flex-col justify-between min-h-[120px]">
-                    <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest italic">Pressure</span>
+                    <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">Pressure</span>
                     <p className="text-3xl font-black text-white italic mt-2">
                         {Math.round(hourly.surface_pressure[0] || 1012)}<span className="text-sm ml-1 opacity-40 uppercase">hPa</span>
                     </p>
-                    <p className="text-[10px] font-bold text-white/20 uppercase mt-auto">Surface Level</p>
+                    <p className="text-[15px] font-bold text-white/20 uppercase mt-auto">Surface Level</p>
                 </div>
             </div>
 
@@ -215,13 +229,14 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
                     <h3 className="text-lg font-black text-white uppercase tracking-[0.2em] italic">Hourly Forecast</h3>
                 </div>
                 <div className="flex overflow-x-auto pb-4 space-x-4 no-scrollbar">
-                    {hourly.time.slice(0, 24).map((time: string, i: number) => {
+                    {hourly.time.slice(startIndex, startIndex + 24).map((time: string, i: number) => {
+                        const actualIdx = startIndex + i;
                         const hour = new Date(time);
-                        const temp = hourly.temperature_2m[i];
-                        const code = hourly.weather_code[i]?.toString();
+                        const temp = hourly.temperature_2m[actualIdx];
+                        const code = hourly.weather_code[actualIdx]?.toString();
                         const info = weatherCodeMapping[code] || { image: "", description: "---" };
-                        const rainAmount = hourly.rain[i];
-                        const snowfallAmount = hourly.snowfall[i];
+                        const rainAmount = hourly.rain[actualIdx];
+                        const snowfallAmount = hourly.snowfall[actualIdx];
 
                         const isSignificantPrecipitation = rainAmount > 0.1 || snowfallAmount > 0.1;
 

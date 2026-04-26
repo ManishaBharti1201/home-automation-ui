@@ -9,7 +9,7 @@ interface Props {
   onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
 }
 
-const DEFAULT_GATEWAY = 'http://homelab.tail1ccd16.ts.net:8000';
+const DEFAULT_GATEWAY = 'http://homelab.tail1ccd16.ts.net:8081';
 
 export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY, onLog }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
