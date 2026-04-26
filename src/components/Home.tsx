@@ -12,7 +12,6 @@ const foggyVideo = require("../assets/weather/foggy.mp4");
 const heavyDrizzleVideo = require("../assets/weather/heavy-drizzle.mp4");
 const heavyRainVideo = require("../assets/weather/heavy-rain.mp4");
 const heavyShowersVideo = require("../assets/weather/heavy-showers.mp4");
-const heavySnowVideo = require("../assets/weather/heavy-snow.mp4");
 const mainlyClearVideo = require("../assets/weather/mainly-clear.mp4");
 const overcastVideo = require("../assets/weather/overcast.mp4");
 const rainShowersVideo = require("../assets/weather/rain-showers.mp4");
@@ -144,7 +143,7 @@ const Home: React.FC = () => {
       case 77:
       case 85:
       case 86: 
-        return heavySnowVideo;
+        return rainShowersVideo;
       case 80: 
         return rainShowersVideo;
       case 81:
