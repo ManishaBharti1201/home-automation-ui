@@ -49,6 +49,9 @@ jobs:
       - name: Install Capacitor CLI
         run: npm install @capacitor/cli @capacitor/android
 
+      - name: Add Android Platform
+        run: npx cap add android || echo "Android platform already exists, skipping add..."
+
       - name: Capacitor Sync
         run: npx cap sync android
 
@@ -91,13 +94,23 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM_IP }}
-          username: ${{ secrets.VM_USER }} # Ensure this secret is set to 'homelab'
+          username: ${{ secrets.VM_USER }}
           password: ${{ secrets.VM_PASSWORD }}
           script: |
-            # Create the directory if it doesn't exist
             mkdir -p ~/docker/home-automation
             cd ~/docker/home-automation
             
-            # Pull the latest UI image and restart
-            docker compose pull
-            docker compose up -d
+            # Create a UI-specific compose file so Java stays running
+            cat << 'EOF' > docker-compose-ui.yml
+            services:
+              ui:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
+                container_name: home-automation-ui
+                ports:
+                  - "3000:3000"
+                restart: unless-stopped
+            EOF
+            
+            # Pull and Update ONLY the UI
+            docker compose -f docker-compose-ui.yml pull
+            docker compose -f docker-compose-ui.yml up -d
