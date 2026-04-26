@@ -92,8 +92,8 @@ jobs:
         with:
           host: ${{ secrets.VM_TAILSCALE_IP }}
           username: ${{ secrets.VM_USER }}
-          password: ${{ secrets.VM_SSH_KEY }}
+          password: ${{ secrets.VM_PASSWORD }} # Swapped from 'key' to 'password'
           script: |
-            cd ~/docker/home-automation
+            cd ~/home-automation-ui
             docker compose pull
             docker compose up -d
