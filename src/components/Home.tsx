@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import Dashboard from "./Dashboard"; 
 import Weather from "./dashboard/Weather";
@@ -19,18 +19,18 @@ const Home: React.FC = () => {
   const [deviceStates, setDeviceStates] = useState<Record<string, any>>({});
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const addLog = (type: LogEntry['type'], message: string, detail?: string) => {
+  const addLog = useCallback((type: LogEntry['type'], message: string, detail?: string) => {
     const newLog: LogEntry = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
       type,
       message,
       detail
     };
     setLogs(prev => [newLog, ...prev].slice(0, 100));
-  };
+  }, []);
 
-  const clearLogs = () => setLogs([]);
+  const clearLogs = useCallback(() => setLogs([]), []);
 
   // Device Syncing Logic
   useEffect(() => {

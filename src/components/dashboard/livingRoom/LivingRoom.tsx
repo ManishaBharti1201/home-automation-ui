@@ -37,8 +37,12 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
         const isOn = update.status?.value !== undefined ? !!update.status.value : (update.isOn !== undefined ? !!update.isOn : false);
         const name = update.name;
 
-        const mapState = (setter: any, defaultName: string) => 
-          setter((prev: any) => ({ name: name || prev.name || defaultName, status: isOn }));
+        const mapState = (setter: any, defaultName: string) => {
+          setter((prev: any) => {
+            if (prev.status === isOn && (prev.name === name || !name)) return prev;
+            return { name: name || prev.name || defaultName, status: isOn };
+          });
+        };
 
         if (devId === "eba7ab5c1f6a3c9fabfaox") {
           // Auto-maximize logic: Trigger only when moving from false -> true
