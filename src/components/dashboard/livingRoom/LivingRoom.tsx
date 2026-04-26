@@ -60,7 +60,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
         if (devId === "robo-vac") mapState(setRoboVac, "Robo Vacuum");
       });
     }
-  }, [device]);
+  }, [device, onLog]);
 
   const handleToggle = async (deviceId: string, newValue: boolean, setter: any, current: any, code: string = "switch_1") => {
     setter({ ...current, status: newValue });

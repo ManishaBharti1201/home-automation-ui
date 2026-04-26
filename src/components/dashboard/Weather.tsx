@@ -73,7 +73,7 @@ const Weather: React.FC<WeatherProps> = ({ onConditionChange, onLog }) => {
         // Update weather data every hour (3600000 ms)
         const interval = setInterval(fetchWeather, 3600000); 
         return () => clearInterval(interval);
-    }, []);
+    }, [onConditionChange, onLog]);
 
     return (
         <div className="flex items-center gap-5 px-6 py-3 bg-white/5 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-md">

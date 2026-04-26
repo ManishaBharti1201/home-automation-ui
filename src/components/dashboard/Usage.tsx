@@ -54,7 +54,7 @@ const Usage: React.FC<UsageProps> = ({ onLog }) => {
       }
     };
     fetchUtilityData();
-  }, []);
+  }, [onLog]);
 
   const glassChartOptions: ChartOptions<'line'> = {
     responsive: true,

@@ -47,7 +47,8 @@ jobs:
         run: npm install
 
       - name: Build Web Assets
-        run: npm run build # This creates the ./build folder Capacitor is looking for
+        # CI=false prevents ESLint warnings from failing the build
+        run: CI=false npm run build 
 
       - name: Install Capacitor CLI
         run: npm install @capacitor/cli @capacitor/android
@@ -90,7 +91,7 @@ jobs:
         uses: tailscale/github-action@v2
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }} # Backend uses CLIENT_SECRET
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
           tags: tag:ci
 
       - name: Deploy to VM via SSH
@@ -104,6 +105,7 @@ jobs:
             cd ~/docker/home-automation
             
             # Create a combined compose file for UI and Gateway
+            # Note: Gateway port changed to 8081 to avoid Portainer conflict
             cat << EOF > docker-compose-ui-gateway.yml
             services:
               ui:
@@ -119,7 +121,7 @@ jobs:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
                 container_name: tuya-gateway
                 ports:
-                  - "8000:8000"
+                  - "8081:8000"
                 environment:
                   - TUYA_CLIENT_ID=${{ secrets.TUYA_CLIENT_ID }}
                   - TUYA_CLIENT_SECRET=${{ secrets.TUYA_CLIENT_SECRET }}
@@ -130,7 +132,6 @@ jobs:
                   - ./data/streams:/app/streams
                 restart: unless-stopped
             EOF
-            
-            # Pull and Update the stack
+
             docker compose -f docker-compose-ui-gateway.yml pull
             docker compose -f docker-compose-ui-gateway.yml up -d

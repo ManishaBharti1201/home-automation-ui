@@ -64,7 +64,7 @@ export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY,
       mounted = false;
       axios.post(`${gatewayBase}/api/stream/stop`, { id }).catch(() => {});
     };
-  }, [id, rtspUrl, gatewayBase]);
+  }, [id, rtspUrl, gatewayBase, onLog]);
 
   // Poll manifest using HEAD then GET with exponential backoff
   async function waitForManifestWithBackoff(url: string, timeout = 20000) {

@@ -48,7 +48,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
             }
         };
         loadFullWeather();
-    }, []);
+    }, [onLog]);
 
     if (loading || !data) return null;
 
