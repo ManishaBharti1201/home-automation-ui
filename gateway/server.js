@@ -212,6 +212,19 @@ app.get("/api/status-stream", (req, res) => {
   });
 });
 
+/**
+ * Health endpoint to validate gateway deployment
+ */
+app.get("/api/health", (req, res) => {
+  console.log(`[gateway] Health check requested at ${new Date().toISOString()}`);
+  res.json({
+    status: "ok",
+    uptime: Math.floor(process.uptime()) + "s",
+    ffmpeg: ffmpegAvailable,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Check ffmpeg availability
 const { spawnSync } = require("child_process");
 let ffmpegAvailable = true;

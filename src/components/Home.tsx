@@ -9,8 +9,8 @@ const rainyVideo = require("../assets/weather/rainy.mp4");
 const cloudyVideo = require("../assets/weather/cloudy.mp4");
 const thunderVideo = require("../assets/weather/thunderstorm.mp4");
 
-// Replace '192.168.1.50' with your Home Server's actual LAN IP
-const GATEWAY_URL = "http://localhost:8000";
+// Hardcoded Gateway URL
+const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8000";
 
 const Home: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -34,6 +34,17 @@ const Home: React.FC = () => {
 
   // Device Syncing Logic
   useEffect(() => {
+    const verifyGateway = async () => {
+      try {
+        const resp = await axios.get(`${GATEWAY_URL}/api/health`);
+        addLog('SYSTEM', 'Gateway Online', `Status: ${resp.data.status}, Uptime: ${resp.data.uptime}`);
+      } catch (err) {
+        addLog('ERROR', 'Gateway Unreachable', (err as any).message);
+      }
+    };
+
+    verifyGateway();
+
     const fetchInitialStatus = async () => {
       const url = `${GATEWAY_URL}/api/devices/status`;
       try {

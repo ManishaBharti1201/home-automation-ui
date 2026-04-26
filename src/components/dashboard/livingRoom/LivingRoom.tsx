@@ -10,6 +10,8 @@ interface LivingRoomProps {
   onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
 }
 
+const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8000";
+
 const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) => {
   const [mainDoor, setMainDoor] = useState({ name: "Main Door", status: false });
   const [garageDoor, setGarageDoor] = useState({ name: "Garage Door", status: false });
@@ -71,7 +73,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
     onLog?.('API', `Request: Toggle ${deviceId}`, `Action: ${newValue ? 'ON' : 'OFF'} (Code: ${code})`);
     
     try {
-      await axios.post("http://localhost:8000/api/device/control", {
+      await axios.post(`${GATEWAY_URL}/api/device/control`, {
         deviceId,
         code,
         value: newValue
@@ -191,7 +193,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
               onClick={() => setIsCameraMaximized(true)}
             >
               <div className="relative z-10 flex-1 h-full">
-                <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase="http://localhost:8000" onLog={onLog} />
+                <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase={GATEWAY_URL} onLog={onLog} />
               </div>
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
                 <span className="text-[10px] font-black uppercase tracking-widest text-white bg-black/60 px-4 py-2 rounded-full border border-white/10">Expand View</span>
@@ -235,7 +237,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
               ✕
             </button>
             <div className="w-full h-full">
-              <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase="http://localhost:8000" onLog={onLog} />
+              <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase={GATEWAY_URL} onLog={onLog} />
             </div>
           </div>
         </div>
