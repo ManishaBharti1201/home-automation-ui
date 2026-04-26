@@ -10,7 +10,7 @@ const cloudyVideo = require("../assets/weather/cloudy.mp4");
 const thunderVideo = require("../assets/weather/thunderstorm.mp4");
 
 // Hardcoded Gateway URL
-const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8000";
+const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
 
 const Home: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
