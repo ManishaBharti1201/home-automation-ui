@@ -1,119 +1,40 @@
-name: CI/CD Pipeline - React to Docker Hub, VM & Android
+name: Build and Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  init-notifications:
-    name: Start Slack Thread
-    runs-on: ubuntu-latest
-    outputs:
-      thread_ts: ${{ steps.slack.outputs.thread_ts }}
-    steps:
-      - name: Create Slack Thread
-        id: slack
-        uses: slackapi/slack-github-action@v1.27.0
-        with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "🚀 Pipeline Execution Started"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    { "type": "mrkdwn", "text": "*Repo:*\n${{ github.repository }}" },
-                    { "type": "mrkdwn", "text": "*Author:*\n${{ github.actor }}" }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Commit:* `${{ github.event.head_commit.message }}`"
-                  }
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    { "type": "mrkdwn", "text": "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow Details>" }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
   build-and-push:
-    name: Build Image & Push to Docker Hub
-    needs: init-notifications
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push Gateway
-        uses: docker/build-push-action@v4
+
+      - name: Build and Push Gateway
+        uses: docker/build-push-action@v5
         with:
           context: ./gateway
-          file: ./gateway/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
 
-      - name: Build and push BFF/Frontend
-        uses: docker/build-push-action@v4
+      - name: Build and Push UI
+        uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
-          build-args: |
-            REACT_APP_GATEWAY_URL=${{ secrets.GATEWAY_URL }}
-
-      - name: Notify Job Status
-        if: always()
-        uses: slackapi/slack-github-action@v1.27.0
-        with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
-              "thread_ts": "${{ needs.init-notifications.outputs.thread_ts }}",
-              "attachments": [{
-                "color": "${{ job.status == 'success' && '#36a64f' || '#ff0000' }}",
-                "blocks": [
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "${{ job.status == 'success' && '✅ *Docker Images Pushed*' || '❌ *Docker Build Failed*' }}\n*Tags:* `latest`"
-                    }
-                  }
-                ]
-              }]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   build-android:
-    name: Build Android Debug APK
-    needs: init-notifications
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -143,86 +64,31 @@ jobs:
           ./gradlew assembleDebug
 
       - name: Upload APK Artifact
-        id: upload-apk
         uses: actions/upload-artifact@v4
         with:
           name: home-automation-ui-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
 
-      - name: Notify Job Status
-        if: always()
-        uses: slackapi/slack-github-action@v1.27.0
-        with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
-              "thread_ts": "${{ needs.init-notifications.outputs.thread_ts }}",
-              "attachments": [{
-                "color": "${{ job.status == 'success' && '#36a64f' || '#ff0000' }}",
-                "blocks": [
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "${{ job.status == 'success' && '✅ *Android APK Ready*' || '❌ *Android Build Failed*' }}\n📦 *Download:* <${{ steps.upload-apk.outputs.artifact-url }}|Click here to Download APK>"
-                    }
-                  }
-                ]
-              }]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
   deploy:
-    name: Deploy to Ubuntu VM
-    needs: [init-notifications, build-and-push]
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Copy docker-compose.yml to VM
-        uses: appleboy/scp-action@v0.1.7
+      - name: Tailscale
+        uses: tailscale/github-action@v2
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml"
-          target: "~/home-automation-ui"
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
 
-      - name: SSH and Update VM
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VM_HOST }}
+          host: ${{ secrets.VM_TAILSCALE_IP }}
           username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            cd ~/home-automation-ui || exit 1
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            cd ~/docker/home-automation
             docker compose pull
-            docker compose up -d --force-recreate
-
-      - name: Final Pipeline Status
-        if: always()
-        uses: slackapi/slack-github-action@v1.27.0
-        with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
-              "thread_ts": "${{ needs.init-notifications.outputs.thread_ts }}",
-              "blocks": [
-                { "type": "divider" },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "🏁 *Pipeline Finished: ${{ job.status == 'success' && 'SUCCESS 🎉' || 'FAILURE 🚨' }}*\n*Host:* `${{ secrets.VM_HOST }}`"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+            docker compose up -d

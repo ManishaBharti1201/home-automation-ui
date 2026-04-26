@@ -10,7 +10,7 @@ const cloudyVideo = require("../assets/weather/cloudy.mp4");
 const thunderVideo = require("../assets/weather/thunderstorm.mp4");
 
 // Replace '192.168.1.50' with your Home Server's actual LAN IP
-const GATEWAY_URL = process.env.REACT_APP_GATEWAY_URL || "http://localhost:8000";
+const GATEWAY_URL = "http://localhost:8000";
 
 const Home: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
