@@ -18,6 +18,7 @@ const Home: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [deviceStates, setDeviceStates] = useState<Record<string, any>>({});
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isInitialSyncDone = useRef(false);
 
   const addLog = useCallback((type: LogEntry['type'], message: string, detail?: string) => {
     const newLog: LogEntry = {
@@ -36,7 +37,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const verifyGateway = async () => {
       try {
-        const resp = await axios.get(`${GATEWAY_URL}/api/health`);
+        const resp = await axios.get<{ status: string; uptime: string }>(`${GATEWAY_URL}/api/health`);
         addLog('SYSTEM', 'Gateway Online', `Status: ${resp.data.status}, Uptime: ${resp.data.uptime}`);
       } catch (err) {
         addLog('ERROR', 'Gateway Unreachable', (err as any).message);
@@ -57,6 +58,7 @@ const Home: React.FC = () => {
         });
         setDeviceStates(initialState);
         addLog('SYSTEM', 'Initial Sync Complete', `Loaded ${resp.data.length} devices`);
+        isInitialSyncDone.current = true;
       } catch (err) {
         const error = err as any;
         const msg = error.isAxiosError ? error.response?.data?.error || error.message : error.message || String(err);
@@ -66,9 +68,18 @@ const Home: React.FC = () => {
     fetchInitialStatus();
 
     const eventSource = new EventSource(`${GATEWAY_URL}/api/status-stream`);
+
+    eventSource.onopen = () => addLog('SYSTEM', 'Status Stream Connected', 'Listening for real-time updates');
+    eventSource.onerror = () => addLog('ERROR', 'Status Stream Failure', 'Connection to gateway lost');
+
     eventSource.onmessage = (event) => {
       try {
         const update = JSON.parse(event.data);
+        // Log status changes that occur after the initial dashboard sync
+        if (isInitialSyncDone.current && update && update.name) {
+          const statusLabel = update.isOn ? 'ON' : 'OFF';
+          addLog('UPDATE', `Device: ${update.name}`, `Status changed to ${statusLabel}`);
+        }
         setDeviceStates((prev) => ({ ...prev, [update.devId]: update }));
       } catch (err) { console.error("Parse Error", err); }
     };
@@ -163,12 +174,17 @@ const Home: React.FC = () => {
             </div>
           </div>
 
-          {/* CENTER: GREETING */}
-          <div className="hidden md:flex flex-col items-center flex-[1.2]">
-            <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
-              {greeting}
-            </h1>
-            <span className="text-[9px] font-black tracking-[0.5em] text-white/10 uppercase mt-1">CORE OS V3</span>
+          {/* CENTER: BRANDING & GREETING */}
+          <div className="hidden md:flex flex-col items-center flex-[1.2] gap-1">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <span className="text-xl font-black italic text-white">L</span>
+              </div>
+              <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
+                {greeting}
+              </h1>
+            </div>
+            <span className="text-[9px] font-black tracking-[0.5em] text-white/20 uppercase">Lumina Home Control • v3.0</span>
           </div>
 
           {/* RIGHT: SYSTEM STATUS */}
