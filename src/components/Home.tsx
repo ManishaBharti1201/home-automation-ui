@@ -4,19 +4,20 @@ import Dashboard from "./Dashboard";
 import Weather from "./dashboard/Weather";
 import { LogEntry } from "./dashboard/Logs";
 
-import sunnyVideo from '../assets/weather/sunny.mp4';
-import rainyVideo from '../assets/weather/rainy.mp4';
-import cloudyVideo from '../assets/weather/cloudy.mp4';
-import thunderVideo from '../assets/weather/thunderstorm.mp4';
-import foggyVideo from '../assets/weather/foggy.mp4';
-import heavyDrizzleVideo from '../assets/weather/heavy-drizzle.mp4';
-import heavyRainVideo from '../assets/weather/heavy-rain.mp4';
-import heavyShowersVideo from '../assets/weather/heavy-showers.mp4';
-import mainlyClearVideo from '../assets/weather/mainly-clear.mp4';
-import overcastVideo from '../assets/weather/overcast.mp4';
-import rainShowersVideo from '../assets/weather/rain-showers.mp4';
-import rimeFogVideo from '../assets/weather/rime-fog.mp4';
-
+const weatherVideos = {
+  sunny: "/weather/sunny.mp4",
+  rainy: "/weather/rainy.mp4",
+  cloudy: "/weather/cloudy.mp4",
+  thunder: "/weather/thunder.mp4",
+  foggy: "/weather/foggy.mp4",
+  heavyDrizzle: "/weather/heavy-drizzle.mp4",
+  heavyRain: "/weather/heavy-rain.mp4",
+  heavyShowers: "/weather/heavy-showers.mp4",
+  mainlyClear: "/weather/mainly-clear.mp4",
+  overcast: "/weather/overcast.mp4",
+  rainShowers: "/weather/rain-showers.mp4",
+  rimeFog: "/weather/rime-fog.mp4",
+};
 
 // Hardcoded Gateway URL
 const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
@@ -113,48 +114,48 @@ const Home: React.FC = () => {
     const code = parseInt(weatherCode);
     switch (code) {
       case 0: 
-        return sunnyVideo;
+        return weatherVideos.sunny;
       case 1: 
-        return mainlyClearVideo;
+        return weatherVideos.mainlyClear;
       case 2: 
-        return cloudyVideo;
+        return weatherVideos.cloudy;
       case 3: 
-        return overcastVideo;
+        return weatherVideos.overcast;
       case 45: 
-        return foggyVideo;
+        return weatherVideos.foggy;
       case 48: 
-        return rimeFogVideo;
+        return weatherVideos.rimeFog;
       case 51:
       case 53:
       case 56:
       case 57:
       case 61:
       case 63: 
-        return rainyVideo;
+        return weatherVideos.rainy;
       case 55: 
-        return heavyDrizzleVideo;
+        return weatherVideos.heavyDrizzle;
       case 65:
       case 66:
       case 67: 
-        return heavyRainVideo;
+        return weatherVideos.heavyRain;
       case 71:
       case 73:
       case 75:
       case 77:
       case 85:
       case 86: 
-        return rainShowersVideo;
+        return weatherVideos.rainShowers;
       case 80: 
-        return rainShowersVideo;
+        return weatherVideos.rainShowers;
       case 81:
       case 82: 
-        return heavyShowersVideo;
+        return weatherVideos.heavyShowers;
       case 95:
       case 96:
       case 99: 
-        return thunderVideo;
+        return weatherVideos.thunder;
       default: 
-        return sunnyVideo;
+        return weatherVideos.sunny;
     }
   }, [weatherCode]);
 
@@ -211,15 +212,6 @@ const Home: React.FC = () => {
           <div className="flex-1 flex items-center gap-4">
             <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md p-1 rounded-3xl border border-white/10 shadow-2xl">
               <Weather onConditionChange={setWeatherCode} onLog={addLog} /> {/* Weather component remains */}
-            </div> 
-            <div className="hidden xl:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5"> 
-               <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-300">
-                  <span className="text-xs font-black">✈️</span>
-               </div>
-               <div className="flex flex-col">
-                  <span className="text-base font-black italic uppercase leading-none text-white/80">Flight to Patna</span>
-                  <span className="text-[10px] font-black uppercase text-white/20 mt-1">Mar 30 • 6E</span>
-               </div>
             </div>
           </div>
 

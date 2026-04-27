@@ -5,7 +5,7 @@ services:
     image: bhanuchandra2010/home-automation-ui:latest
     container_name: home-automation-ui
     ports:
-      - "80:80"
+      - "3000:80"
     restart: always
     depends_on:
       - gateway

@@ -3,34 +3,34 @@ import { fetchWeatherData } from "../../api/weatherApi";
 import React from "react";
 
 const weatherCodeMapping: { [key: string]: { image: string; description: string } } = {
-    "0": { image: require("../../assets/weather/clear.png"), description: "Clear sky" },
-    "1": { image: require("../../assets/weather/clear.png"), description: "Mainly Clear" },
-    "2": { image: require("../../assets/weather/clear.png"), description: "Partly Cloudy" },
-    "3": { image: require("../../assets/weather/fog.png"), description: "Overcast" },
-    "45": { image: require("../../assets/weather/fog.png"), description: "Foggy" },
-    "48": { image: require("../../assets/weather/fog.png"), description: "Rime Fog" },
-    "51": { image: require("../../assets/weather/drizzle.png"), description: "Light Drizzle" },
-    "53": { image: require("../../assets/weather/drizzle.png"), description: "Drizzle" },
-    "55": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Drizzle" },
-    "56": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Drizzle" },
-    "57": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Drizzle" },
-    "61": { image: require("../../assets/weather/drizzle.png"), description: "Light Rain" },
-    "63": { image: require("../../assets/weather/drizzle.png"), description: "Rain" },
-    "65": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Rain" },
-    "66": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Rain" },
-    "67": { image: require("../../assets/weather/drizzle.png"), description: "Freezing Rain" },
-    "71": { image: require("../../assets/weather/fog.png"), description: "Light Snow" },
-    "73": { image: require("../../assets/weather/fog.png"), description: "Snow" },
-    "75": { image: require("../../assets/weather/fog.png"), description: "Heavy Snow" },
-    "77": { image: require("../../assets/weather/fog.png"), description: "Snow Grains" },
-    "80": { image: require("../../assets/weather/drizzle.png"), description: "Rain Showers" },
-    "81": { image: require("../../assets/weather/drizzle.png"), description: "Heavy Showers" },
-    "82": { image: require("../../assets/weather/drizzle.png"), description: "Violent Showers" },
-    "85": { image: require("../../assets/weather/fog.png"), description: "Snow Showers" },
-    "86": { image: require("../../assets/weather/fog.png"), description: "Snow Showers" },
-    "95": { image: require("../../assets/weather/thunderstorm.png"), description: "Thunderstorm" },
-    "96": { image: require("../../assets/weather/thunderstorm.png"), description: "Storm & Hail" },
-    "99": { image: require("../../assets/weather/thunderstorm.png"), description: "Heavy Storm" },
+    "0": { image: "/weather/clear.gif", description: "Clear sky" },
+    "1": { image: "/weather/clear.gif", description: "Mainly Clear" },
+    "2": { image: "/weather/clear.gif", description: "Partly Cloudy" },
+    "3": { image: "/weather/fog.png", description: "Overcast" },
+    "45": { image: "/weather/fog.gif", description: "Foggy" },
+    "48": { image: "/weather/fog.gif", description: "Rime Fog" },
+    "51": { image: "/weather/light-rain.gif", description: "Light Drizzle" },
+    "53": { image: "/weather/light-rain.gif", description: "Drizzle" },
+    "55": { image: "/weather/light-rain.gif", description: "Heavy Drizzle" },
+    "56": { image: "/weather/light-rain.gif", description: "Freezing Drizzle" },
+    "57": { image: "/weather/light-rain.gif", description: "Freezing Drizzle" },
+    "61": { image: "/weather/light-rain.gif", description: "Light Rain" },
+    "63": { image: "/weather/rain.gif", description: "Rain" },
+    "65": { image: "/weather/heavy-rain.gif", description: "Heavy Rain" },
+    "66": { image: "/weather/freezing-rain.gif", description: "Freezing Rain" },
+    "67": { image: "/weather/freezing-rain.gif", description: "Freezing Rain" },
+    "71": { image: "/weather/light-snow.gif", description: "Light Snow" },
+    "73": { image: "/weather/fog.gif", description: "Snow" },
+    "75": { image: "/weather/fog.gif", description: "Heavy Snow" },
+    "77": { image: "/weather/fog.gif", description: "Snow Grains" },
+    "80": { image: "/weather/heavy-rain.gif", description: "Rain Showers" },
+    "81": { image: "/weather/heavy-rain.gif", description: "Heavy Showers" },
+    "82": { image: "/weather/heavy-rain.gif", description: "Violent Showers" },
+    "85": { image: "/weather/fog.gif", description: "Snow Showers" },
+    "86": { image: "/weather/fog.gif", description: "Snow Showers" },
+    "95": { image: "/weather/thunderstorm.gif", description: "Thunderstorm" },
+    "96": { image: "/weather/thunderstorm.gif", description: "Storm & Hail" },
+    "99": { image: "/weather/thunderstorm.gif", description: "Heavy Storm" },
 };
 
 interface WeatherProps {
@@ -53,8 +53,14 @@ const Weather: React.FC<WeatherProps> = ({ onConditionChange, onLog }) => {
                 const data: any = await fetchWeatherData(36.36, -94.29); 
                 console.log("[Weather.tsx] Received API data:", data);
                 
-                // Use current_weather if available, fallback to hourly
-                const temp = data.current_weather?.temperature || data.hourly?.temperature_2m?.[0];
+                // Use current_weather if available, fallback to the hourly slot closest to now
+                const now = new Date();
+                const currentHourIndex = data.hourly?.time.findIndex((t: string) => {
+                    const time = new Date(t);
+                    return time.getTime() >= now.getTime() - 1800000; // Find slot within 30 mins of now
+                }) || 0;
+
+                const temp = data.current_weather?.temperature || data.hourly?.temperature_2m?.[currentHourIndex];
                 const code = data.current_weather?.weathercode?.toString() || data.hourly?.weather_code?.[0]?.toString() || "0";
 
                 if (onConditionChange) {
