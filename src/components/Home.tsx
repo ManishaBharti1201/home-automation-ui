@@ -193,6 +193,7 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 z-0">
           <video 
             ref={videoRef}
+            key={currentVideo}
             autoPlay loop muted playsInline
             className="w-full h-full object-cover"        
           >
