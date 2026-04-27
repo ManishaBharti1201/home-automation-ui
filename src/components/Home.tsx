@@ -4,18 +4,18 @@ import Dashboard from "./Dashboard";
 import Weather from "./dashboard/Weather";
 import { LogEntry } from "./dashboard/Logs";
 
-const sunnyVideo = require("../assets/weather/sunny.mp4");
-const rainyVideo = require("../assets/weather/rainy.mp4");
-const cloudyVideo = require("../assets/weather/cloudy.mp4");
-const thunderVideo = require("../assets/weather/thunderstorm.mp4");
-const foggyVideo = require("../assets/weather/foggy.mp4");
-const heavyDrizzleVideo = require("../assets/weather/heavy-drizzle.mp4");
-const heavyRainVideo = require("../assets/weather/heavy-rain.mp4");
-const heavyShowersVideo = require("../assets/weather/heavy-showers.mp4");
-const mainlyClearVideo = require("../assets/weather/mainly-clear.mp4");
-const overcastVideo = require("../assets/weather/overcast.mp4");
-const rainShowersVideo = require("../assets/weather/rain-showers.mp4");
-const rimeFogVideo = require("../assets/weather/rime-fog.mp4");
+import sunnyVideo from '../assets/weather/sunny.mp4';
+import rainyVideo from '../assets/weather/rainy.mp4';
+import cloudyVideo from '../assets/weather/cloudy.mp4';
+import thunderVideo from '../assets/weather/thunderstorm.mp4';
+import foggyVideo from '../assets/weather/foggy.mp4';
+import heavyDrizzleVideo from '../assets/weather/heavy-drizzle.mp4';
+import heavyRainVideo from '../assets/weather/heavy-rain.mp4';
+import heavyShowersVideo from '../assets/weather/heavy-showers.mp4';
+import mainlyClearVideo from '../assets/weather/mainly-clear.mp4';
+import overcastVideo from '../assets/weather/overcast.mp4';
+import rainShowersVideo from '../assets/weather/rain-showers.mp4';
+import rimeFogVideo from '../assets/weather/rime-fog.mp4';
 
 
 // Hardcoded Gateway URL
@@ -101,7 +101,7 @@ const Home: React.FC = () => {
     const rawStatus = mainSensor?.status?.raw || [];
     
     const temp = rawStatus.find((s: any) => s.code === 'va_temperature')?.value;
-    const batt = rawStatus.find((s: any) => s.code === 'battery_percentage')?.value;
+    const batt = rawStatus.find((s: any) => s.code === 'battery_percentage')?.value; // Keep battery for other uses
 
     return {
       temp: temp !== undefined ? (temp / 10).toFixed(1) : "22.5",
@@ -210,18 +210,9 @@ const Home: React.FC = () => {
           {/* LEFT: CLIMATE GROUP */}
           <div className="flex-1 flex items-center gap-4">
             <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md p-1 rounded-3xl border border-white/10 shadow-2xl">
-              <Weather onConditionChange={setWeatherCode} onLog={addLog} />
-              <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-2xl border border-white/5">
-                 <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-300">
-                    <span className="text-sm">🌡️</span>
-                 </div>
-                 <div className="flex flex-col">
-                    <span className="text-base font-black italic uppercase leading-none text-white">{headerMetrics.temp}°C</span>
-                    <span className="text-[10px] font-black uppercase text-white/30 mt-1">Indoor</span>
-                 </div>
-              </div>
-            </div>
-            <div className="hidden xl:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+              <Weather onConditionChange={setWeatherCode} onLog={addLog} /> {/* Weather component remains */}
+            </div> 
+            <div className="hidden xl:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5"> 
                <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-300">
                   <span className="text-xs font-black">✈️</span>
                </div>
@@ -233,12 +224,10 @@ const Home: React.FC = () => {
           </div>
 
           {/* CENTER: BRANDING & GREETING */}
-          <div className="hidden md:flex flex-col items-center flex-[1.2] gap-1">
-            <div className="flex items-center gap-3">              
-              <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
-                {greeting} BHANU
-              </h1>
-            </div>
+          <div className="hidden md:flex flex-col items-center justify-center flex-[1.2] gap-1 text-center">
+            <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
+              {greeting} BHANU
+            </h1>
             <span className="text-[16px] font-black tracking-[0.5em] text-white/80 uppercase"> {currentDate}</span>
           </div>
 
