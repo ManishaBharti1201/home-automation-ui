@@ -159,13 +159,6 @@ const Home: React.FC = () => {
     }
   }, [weatherCode]);
 
-  // Force video reload when source changes
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load();
-    }
-  }, [currentVideo]);
-
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return "GOOD MORNING";
@@ -195,11 +188,10 @@ const Home: React.FC = () => {
           <video 
             ref={videoRef}
             key={currentVideo}
-            autoPlay loop muted playsInline
+            src={currentVideo}
+            autoPlay loop muted playsInline preload="auto"
             className="w-full h-full object-cover"        
-          >
-            <source src={currentVideo} type="video/mp4" />
-          </video>
+          />
           {/* Blur helps blend the bottom of the header into the solid body */}
           {/* <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-[#0a0a0b]" /> */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0f172a]" />
