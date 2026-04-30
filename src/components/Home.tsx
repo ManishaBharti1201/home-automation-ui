@@ -190,6 +190,10 @@ const Home: React.FC = () => {
             key={currentVideo}
             src={currentVideo}
             autoPlay loop muted playsInline preload="auto"
+            onError={(e) => {
+              const target = e.target as HTMLVideoElement;
+              addLog('ERROR', 'Weather Video Failed', `Path: ${currentVideo} | Error Code: ${target.error?.code}`);
+            }}
             className="w-full h-full object-cover"        
           />
           {/* Blur helps blend the bottom of the header into the solid body */}

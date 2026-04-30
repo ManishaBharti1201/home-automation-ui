@@ -6,7 +6,7 @@ const weatherCodeMapping: { [key: string]: { image: string; description: string 
     "0": { image: "/weather/clear.gif", description: "Clear sky" },
     "1": { image: "/weather/clear.gif", description: "Mainly Clear" },
     "2": { image: "/weather/clear.gif", description: "Partly Cloudy" },
-    "3": { image: "/weather/fog.png", description: "Overcast" },
+    "3": { image: "/weather/overcast.gif", description: "Overcast" },
     "45": { image: "/weather/fog.gif", description: "Foggy" },
     "48": { image: "/weather/fog.gif", description: "Rime Fog" },
     "51": { image: "/weather/light-rain.gif", description: "Light Drizzle" },
@@ -93,7 +93,7 @@ const Weather: React.FC<WeatherProps> = ({ onConditionChange, onLog }) => {
     return (
         <div className="flex items-center gap-5 px-6 py-3 bg-white/5 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-md">
             {/* LARGE ICON - FIXED SIZE */}
-            <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-transparent border border-white/20 shadow-inner">
+            <div className="w-14 h-14 flex items-center bg-white justify-center rounded-2xl bg-transparent border border-white/20 shadow-inner">
                 {weather.icon ? (
                     <img src={weather.icon} alt="Weather" className="w-full h-full object-contain" />
                 ) : (
