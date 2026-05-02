@@ -1,39 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchWeatherData } from "../../api/weatherApi";
+import { weatherCodeMapping } from "../../api/weatherMapping";
 import { LogEntry } from "./Logs";
-
-const weatherCodeMapping: {
-  [key: string]: { image: string; description: string };
-} = {
- "0": { image: "/weather/clear.gif", description: "Clear sky" },
-    "1": { image: "/weather/clear.gif", description: "Mainly Clear" },
-    "2": { image: "/weather/clear.gif", description: "Partly Cloudy" },
-    "3": { image: "/weather/fog.png", description: "Overcast" },
-    "45": { image: "/weather/fog.png", description: "Foggy" },
-    "48": { image: "/weather/fog.png", description: "Rime Fog" },
-    "51": { image: "/weather/light-rain.gif", description: "Light Drizzle" },
-    "53": { image: "/weather/light-rain.gif", description: "Drizzle" },
-    "55": { image: "/weather/light-rain.gif", description: "Heavy Drizzle" },
-    "56": { image: "/weather/light-rain.gif", description: "Freezing Drizzle" },
-    "57": { image: "/weather/light-rain.gif", description: "Freezing Drizzle" },
-    "61": { image: "/weather/light-rain.gif", description: "Light Rain" },
-    "63": { image: "/weather/rain.gif", description: "Rain" },
-    "65": { image: "/weather/heavy-rain.gif", description: "Heavy Rain" },
-    "66": { image: "/weather/freezing-rain.gif", description: "Freezing Rain" },
-    "67": { image: "/weather/freezing-rain.gif", description: "Freezing Rain" },
-    "71": { image: "/weather/light-snow.gif", description: "Light Snow" },
-    "73": { image: "/weather/fog.gif", description: "Snow" },
-    "75": { image: "/weather/fog.gif", description: "Heavy Snow" },
-    "77": { image: "/weather/fog.gif", description: "Snow Grains" },
-    "80": { image: "/weather/heavy-rain.gif", description: "Rain Showers" },
-    "81": { image: "/weather/heavy-rain.gif", description: "Heavy Showers" },
-    "82": { image: "/weather/heavy-rain.gif", description: "Violent Showers" },
-    "85": { image: "/weather/fog.gif", description: "Snow Showers" },
-    "86": { image: "/weather/fog.gif", description: "Snow Showers" },
-    "95": { image: "/weather/thunderstorm.gif", description: "Thunderstorm" },
-    "96": { image: "/weather/thunderstorm.gif", description: "Storm & Hail" },
-    "99": { image: "/weather/thunderstorm.gif", description: "Heavy Storm" },
-};
 
 interface WeatherDetailProps {
   onLog?: (type: LogEntry["type"], message: string, detail?: string) => void;
@@ -71,6 +39,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
     time: [],
     temperature_2m_max: [],
     temperature_2m_min: [],
+    apparent_temperature_max: [],
     weather_code: [],
     precipitation_probability_max: [],
     wind_speed_10m_max: [],
@@ -108,16 +77,16 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
     daily.weather_code.some((code: number) => [95, 96, 99].includes(code));
 
   const StatBox = ({ label, value, unit, icon }: any) => (
-    <div className="bg-white/5 border border-white/5 p-4 rounded-3xl flex items-center gap-4">
-      <span className="text-2xl">{icon}</span>
-      <div>
-        <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">
-          {label}
-        </p>
-        <p className="text-lg font-black text-white italic leading-none mt-1">
+    <div className="bg-white/5 border border-white/5 p-4 rounded-3xl flex flex-col justify-between min-w-[140px]">
+      <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">
+        {label}
+      </p>
+      <div className="flex justify-between items-center mt-2">
+        <p className="text-lg font-black text-white italic leading-none">
           {value}
-          <span className="text-xs ml-1 opacity-40">{unit}</span>
+          <span className="text-xs ml-1 opacity-40 uppercase">{unit}</span>
         </p>
+        <span className="text-2xl">{icon}</span>
       </div>
     </div>
   );
@@ -140,7 +109,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
         {/* TOP SECTION: CURRENT FOCUS */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
           <div className="flex items-center gap-8">
-            <div className="w-32 h-32 bg-white/70 bg-gradient-to-br from-cyan-500/20 to-transparent rounded-[2.5rem] border border-white/10 flex items-center justify-center p-4">
+            <div className="w-32 h-32 bg-white bg-gradient-to-br from-cyan-500/20 to-transparent rounded-[2.5rem] border border-white/10 flex items-center justify-center p-4">
               <img
                 src={weatherInfo.image}
                 alt="current"
@@ -197,11 +166,14 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
             <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">
               Rain Chance
             </span>
-            <p className="text-3xl font-black text-white italic mt-2">
-              {hourly.precipitation_probability[0] ||
-                daily.precipitation_probability_max[0]}
-              %
-            </p>
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-3xl font-black text-white italic">
+                {hourly.precipitation_probability[0] ||
+                  daily.precipitation_probability_max[0]}
+                %
+              </p>
+              <span className="text-4xl">☔</span>
+            </div>
             <div className="h-1.5 w-full bg-white/10 rounded-full mt-4 overflow-hidden">
               <div
                 className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
@@ -215,9 +187,12 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
             <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">
               Humidity
             </span>
-            <p className="text-3xl font-black text-white italic mt-2">
-              {hourly.relative_humidity_2m[0]}%
-            </p>
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-3xl font-black text-white italic">
+                {hourly.relative_humidity_2m[0]}%
+              </p>
+              <span className="text-4xl">💧</span>
+            </div>
             <div className="h-1.5 w-full bg-white/10 rounded-full mt-4 overflow-hidden">
               <div
                 className="h-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]"
@@ -229,10 +204,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
             <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">
               Visibility
             </span>
-            <p className="text-3xl font-black text-white italic mt-2">
-              {Math.round((hourly.visibility[0] || 10000) / 1000)}
-              <span className="text-sm ml-1 opacity-40 uppercase">km</span>
-            </p>
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-3xl font-black text-white italic">
+                {Math.round((hourly.visibility[0] || 10000) / 1000)}
+                <span className="text-sm ml-1 opacity-40 uppercase">km</span>
+              </p>
+              <span className="text-4xl">👁️</span>
+            </div>
             <p className="text-[15px] font-bold text-white/20 uppercase mt-auto">
               Horizon Range
             </p>
@@ -241,10 +219,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
             <span className="text-[15px] font-black text-cyan-400 uppercase tracking-widest italic">
               Pressure
             </span>
-            <p className="text-3xl font-black text-white italic mt-2">
-              {Math.round(hourly.surface_pressure[0] || 1012)}
-              <span className="text-sm ml-1 opacity-40 uppercase">hPa</span>
-            </p>
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-3xl font-black text-white italic">
+                {Math.round(hourly.surface_pressure[0] || 1012)}
+                <span className="text-sm ml-1 opacity-40 uppercase">hPa</span>
+              </p>
+              <span className="text-4xl">⏲️</span>
+            </div>
             <p className="text-[15px] font-bold text-white/20 uppercase mt-auto">
               Surface Level
             </p>
@@ -278,27 +259,34 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
                   className="group relative flex flex-col items-center p-5 rounded-3xl bg-slate-800/40 border border-white/10 hover:bg-slate-700/60 hover:border-cyan-400/30 transition-all duration-300"
                 >
                   <p
-                    className={`text-[10px] font-black uppercase tracking-widest mb-3 ${isWeekend ? "text-indigo-400" : "text-white/40"}`}
+                    className={`text-[15px] font-black uppercase tracking-widest mb-3 ${isWeekend ? "text-indigo-400" : "text-white/40"}`}
                   >
                     {dayName}
                   </p>
-                  <div className="w-16 h-16 mb-4 group-hover:scale-110 transition-transform duration-300 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center p-2 shadow-inner">
+                  <div className="w-16 h-16 mb-4 group-hover:scale-110 transition-transform duration-300 bg-white backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center p-2 shadow-inner">
                     <img
                       src={info.image}
                       alt="day"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <div className="flex flex-col items-center">
-                    <p className="text-lg font-black text-white italic leading-none">
-                      {Math.round(daily.temperature_2m_max[i + 1])}°
-                    </p>
-                    <p className="text-[10px] font-bold text-white/20 mt-1 uppercase tracking-tighter">
-                      {Math.round(daily.temperature_2m_min[i + 1])}°
-                    </p>
-                    <p className="text-[9px] font-black text-cyan-400 mt-2">
-                      {precipProb}% 💧
-                    </p>
+                  <div className="flex flex-col items-center w-full">
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <p className="text-lg font-black text-white italic leading-none">
+                        {Math.round(daily.temperature_2m_max[i + 1])}°
+                      </p>
+                      <p className="text-[11px] font-bold text-white/20 uppercase tracking-tighter">
+                        {Math.round(daily.apparent_temperature_max?.[i + 1] || daily.temperature_2m_max[i + 1])}°
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">
+                        {Math.round(daily.temperature_2m_min[i + 1])}°
+                      </p>
+                      <p className="text-[9px] font-black text-cyan-400">
+                        {precipProb}% 💧
+                      </p>
+                    </div>
                   </div>
                   <div className="absolute inset-0 bg-cyan-400/5 opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity pointer-events-none" />
                 </div>
@@ -321,6 +309,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
                 const actualIdx = startIndex + i;
                 const hour = new Date(time);
                 const temp = hourly.temperature_2m[actualIdx];
+                const apparentTemp = hourly.apparent_temperature[actualIdx];
                 const code = hourly.weather_code[actualIdx]?.toString();
                 const info = weatherCodeMapping[code] || {
                   image: "",
@@ -346,16 +335,21 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ onLog }) => {
                     <p className="text-sm font-bold text-white/60 mb-2">
                       {hourString}
                     </p>
-                    <div className="w-14 h-14 mb-2 group-hover:scale-110 transition-transform duration-300 bg-white/10 backdrop-blur-md border border-white/5 rounded-xl flex items-center justify-center p-2 shadow-inner">
+                    <div className="w-14 h-14 mb-2 group-hover:scale-110 transition-transform duration-300 bg-white backdrop-blur-md border border-white/5 rounded-xl flex items-center justify-center p-2 shadow-inner">
                       <img
                         src={info.image}
                         alt="hourly weather"
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-xl font-black text-white italic leading-none">
-                      {Math.round(temp)}°C
-                    </p>
+                    <div className="flex items-baseline gap-1">
+                      <p className="text-lg font-black text-white italic leading-none">
+                        {Math.round(temp)}°
+                      </p>
+                      <p className="text-[11px] font-bold text-white/20 uppercase tracking-tighter">
+                        {Math.round(apparentTemp || temp)}°
+                      </p>
+                    </div>
                     {isSignificantPrecipitation && (
                       <p className="text-xs font-bold text-cyan-400 mt-1">
                         {rainAmount > 0.1 ? `${rainAmount.toFixed(1)}mm` : ""}
