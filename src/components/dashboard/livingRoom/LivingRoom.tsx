@@ -24,6 +24,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
   const [fountain, setFountain] = useState({ name: "Fountain", status: false });
   const [roboVac, setRoboVac] = useState({ name: "Robo Vacuum", status: false });
   const [isCameraMaximized, setIsCameraMaximized] = useState(false);
+  const [isStreamActive, setIsStreamActive] = useState(false);
   const prevCameraStatus = useRef(false);
 
   const [trashRecycleData] = useState({
@@ -178,22 +179,22 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
             <div className="flex justify-between items-center px-2">
                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 italic">{camera.name}</span>
                <div className="flex items-center gap-1">
-                  <div className={`w-1 h-1 rounded-full ${camera.status ? 'bg-cyan-400 animate-pulse' : 'bg-red-500'}`} />
-                  <span className="text-[8px] font-bold text-white/20 uppercase">{camera.status ? 'Live' : 'Offline'}</span>
+                  <div className={`w-1 h-1 rounded-full ${isStreamActive ? 'bg-cyan-400 animate-pulse' : 'bg-red-500'}`} />
+                  <span className="text-[8px] font-bold text-white/20 uppercase">{isStreamActive ? 'Live' : 'Offline'}</span>
                </div>
             </div>
             <div 
               className={`
-                relative flex flex-col justify-between min-h-[140px] md:min-h-[160px] cursor-pointer
+                relative w-full aspect-video cursor-pointer
                 backdrop-blur-md border-2 rounded-[2rem] overflow-hidden transition-all group
-                ${camera.status 
+                ${isStreamActive 
                   ? 'bg-cyan-500/20 border-cyan-400/60 shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
                   : 'bg-slate-800/40 border-white/20'}
               `}
               onClick={() => setIsCameraMaximized(true)}
             >
-              <div className="relative z-10 flex-1 h-full">
-                <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase={GATEWAY_URL} onLog={onLog} />
+              <div className="absolute inset-0 z-10">
+                <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase={GATEWAY_URL} onLog={onLog} onActive={setIsStreamActive} />
               </div>
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
                 <span className="text-[10px] font-black uppercase tracking-widest text-white bg-black/60 px-4 py-2 rounded-full border border-white/10">Expand View</span>
@@ -237,7 +238,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ isDarkMode, device, onLog }) =>
               ✕
             </button>
             <div className="w-full h-full">
-              <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase={GATEWAY_URL} onLog={onLog} />
+              <CameraCard id="eba7ab5c1f6a3c9fabfaox" gatewayBase={GATEWAY_URL} onLog={onLog} onActive={setIsStreamActive} />
             </div>
           </div>
         </div>

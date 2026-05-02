@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
+
 interface AquariumProps {
   device: any;
   onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
@@ -40,7 +42,7 @@ const Aquarium: React.FC<AquariumProps> = ({ device, onLog }) => {
     setter({ ...current, status: newValue });
     onLog?.('API', `Request: Toggle ${deviceId}`, `Action: ${newValue ? 'ON' : 'OFF'} (Code: ${code})`);
     try {
-      await axios.post("http://localhost:8000/api/device/control", {
+      await axios.post(`${GATEWAY_URL}/api/device/control`, {
         deviceId,
         code,
         value: newValue

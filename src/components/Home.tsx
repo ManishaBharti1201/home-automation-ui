@@ -210,7 +210,7 @@ const Home: React.FC = () => {
           {/* CENTER: BRANDING & GREETING */}
           <div className="hidden md:flex flex-col items-center justify-center flex-[1.2] gap-1 text-center">
             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
-              {greeting} BHANU
+              {greeting} Bhanu & Family
             </h1>
             <span className="text-[16px] font-black tracking-[0.5em] text-white/80 uppercase"> {currentDate}</span>
           </div>
@@ -218,13 +218,10 @@ const Home: React.FC = () => {
           {/* RIGHT: SYSTEM STATUS */}
           <div className="flex-1 flex justify-end items-center gap-4">
              <div className="flex items-center gap-4 bg-white/5 p-2 rounded-xl border border-white/10">
-                <button onClick={() => setIsDarkMode(!isDarkMode)} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-lg text-xl">
-                  {isDarkMode ? "🌙" : "🌞"}
-                </button>
                 <div className="flex items-center gap-3 px-1">
                   <div className="flex flex-col items-end">
                     <span className={`text-base font-black italic leading-none ${headerMetrics.battery < 20 ? 'text-red-500' : 'text-white'}`}>{headerMetrics.battery}%</span>
-                    <span className="text-[8px] font-black text-white/30 uppercase">Security</span>
+                   
                   </div>
                   <div className="relative w-12 h-6 border border-white/20 rounded-md p-[2px] bg-black/20">
                     <div className={`h-full rounded-[2px] transition-all duration-500 ${headerMetrics.battery < 20 ? 'bg-red-500' : 'bg-cyan-400'}`} style={{ width: `${headerMetrics.battery}%` }} />

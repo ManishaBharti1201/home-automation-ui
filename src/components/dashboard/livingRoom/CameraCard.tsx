@@ -6,12 +6,13 @@ interface Props {
   id: string; // unique id for stream (used by gateway)
   rtspUrl?: string; // optional: provide RTSP URL directly
   gatewayBase?: string; // e.g. http://localhost:8000
+  onActive?: (active: boolean) => void;
   onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
 }
 
 const DEFAULT_GATEWAY = 'http://homelab.tail1ccd16.ts.net:8081';
 
-export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY, onLog }: Props) {
+export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY, onLog, onActive }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [hlsUrl, setHlsUrl] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
@@ -43,11 +44,13 @@ export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY,
         }
         setHlsUrl(fullUrl);
         setError(null);
+        onActive?.(true);
         onLog?.('UPDATE', `Stream Active: ${id}`, `HLS Manifest ready`);
       } catch (err) {
         console.error('start stream error', err);
         const anyErr: any = err;
         onLog?.('ERROR', `Stream Failure: ${id}`, anyErr.message || 'Connection timeout');
+        onActive?.(false);
         if (anyErr && anyErr.response && anyErr.response.data) {
           setError(anyErr.response.data.error || JSON.stringify(anyErr.response.data));
         } else if (anyErr && anyErr.message) {
@@ -62,6 +65,7 @@ export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY,
     start();
     return () => {
       mounted = false;
+      onActive?.(false);
       axios.post(`${gatewayBase}/api/stream/stop`, { id }).catch(() => {});
     };
   }, [id, rtspUrl, gatewayBase, onLog]);
