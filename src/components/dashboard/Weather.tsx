@@ -1,37 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchWeatherData } from "../../api/weatherApi";
+import { weatherCodeMapping } from "../../api/weatherMapping";
 import React from "react";
-
-const weatherCodeMapping: { [key: string]: { image: string; description: string } } = {
-    "0": { image: "/weather/clear.gif", description: "Clear sky" },
-    "1": { image: "/weather/clear.gif", description: "Mainly Clear" },
-    "2": { image: "/weather/clear.gif", description: "Partly Cloudy" },
-    "3": { image: "/weather/overcast.gif", description: "Overcast" },
-    "45": { image: "/weather/fog.gif", description: "Foggy" },
-    "48": { image: "/weather/fog.gif", description: "Rime Fog" },
-    "51": { image: "/weather/light-rain.gif", description: "Light Drizzle" },
-    "53": { image: "/weather/light-rain.gif", description: "Drizzle" },
-    "55": { image: "/weather/light-rain.gif", description: "Heavy Drizzle" },
-    "56": { image: "/weather/light-rain.gif", description: "Freezing Drizzle" },
-    "57": { image: "/weather/light-rain.gif", description: "Freezing Drizzle" },
-    "61": { image: "/weather/light-rain.gif", description: "Light Rain" },
-    "63": { image: "/weather/rain.gif", description: "Rain" },
-    "65": { image: "/weather/heavy-rain.gif", description: "Heavy Rain" },
-    "66": { image: "/weather/freezing-rain.gif", description: "Freezing Rain" },
-    "67": { image: "/weather/freezing-rain.gif", description: "Freezing Rain" },
-    "71": { image: "/weather/light-snow.gif", description: "Light Snow" },
-    "73": { image: "/weather/fog.gif", description: "Snow" },
-    "75": { image: "/weather/fog.gif", description: "Heavy Snow" },
-    "77": { image: "/weather/fog.gif", description: "Snow Grains" },
-    "80": { image: "/weather/heavy-rain.gif", description: "Rain Showers" },
-    "81": { image: "/weather/heavy-rain.gif", description: "Heavy Showers" },
-    "82": { image: "/weather/heavy-rain.gif", description: "Violent Showers" },
-    "85": { image: "/weather/fog.gif", description: "Snow Showers" },
-    "86": { image: "/weather/fog.gif", description: "Snow Showers" },
-    "95": { image: "/weather/thunderstorm.gif", description: "Thunderstorm" },
-    "96": { image: "/weather/thunderstorm.gif", description: "Storm & Hail" },
-    "99": { image: "/weather/thunderstorm.gif", description: "Heavy Storm" },
-};
 
 interface WeatherProps {
     onConditionChange?: (code: string) => void;
