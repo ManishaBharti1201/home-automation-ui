@@ -52,8 +52,47 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ onLog }) => {
       relative p-6 rounded-[2rem] min-h-[180px] flex flex-col justify-between border-2 backdrop-blur-md
       ${isOnline ? 'bg-black/40 border-green-500/30 shadow-2xl' : 'bg-red-950/40 border-red-500 shadow-2xl'}
     `}>
+      {/* BACKGROUND GRAPH ANIMATION */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 z-0">
+        <style>{`
+          @keyframes graph-slide {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+          }
+        `}</style>
+        {isOnline ? (
+          <svg
+            className="w-[200%] h-full"
+            viewBox="0 0 800 150"
+            preserveAspectRatio="none"
+            style={{
+              animation: "graph-slide 10s linear infinite",
+              position: "absolute",
+              left: 0,
+            }}
+          >
+            <path
+              d="M0,80 C50,80 70,30 120,30 C170,30 190,100 240,100 C290,100 310,60 360,60 C410,60 430,80 480,80 C530,80 550,30 600,30 C650,30 670,100 720,100 C770,100 790,60 840,60"
+              fill="none"
+              stroke="#22c55e"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        ) : (
+          <svg className="w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="none">
+            <line 
+              x1="0" y1="80" x2="400" y2="80" 
+              stroke="#ef4444" 
+              strokeWidth="3" 
+              className="drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+            />
+          </svg>
+        )}
+      </div>
+
       {/* HEADER */}
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start relative z-10">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center border-2 bg-white/5 border-white/10">
             <img src={isOnline ? wifi : noWifi} alt="wifi" className="w-8 h-8 object-contain" />
@@ -80,7 +119,7 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ onLog }) => {
       </div>
 
       {/* METRICS */}
-      <div className="flex items-end justify-between mt-6">
+      <div className="flex items-end justify-between mt-6 relative z-10">
         <div className="flex flex-col">
           <span className="text-5xl font-black tracking-tighter italic leading-none text-white drop-shadow-lg">
             {isOnline ? metrics.down : '---'}

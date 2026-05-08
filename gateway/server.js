@@ -36,7 +36,7 @@ app.use(
 const ffmpegProcesses = {}; // id -> process
 
 const DEVICE_MAP = {
-  eba7ab5c1f6a3c9fabfaox: "Security Camera",
+  eba7ab5c1f6a3c9fabfaox: "Backyard Cam",
   "04348481600194f74f53": "Garage bulb 2",
   "062025582cf432e12b55": "Garage bulb 1",
   ebace458dfa30f1a28ouzo: "Puja",
@@ -157,6 +157,7 @@ function initExternalSSE() {
             const sseData = JSON.stringify({
               devId,
               name,
+              rawStatus: status,
               status: { value: isOn },
               isOn,
               isLivingRoom,

@@ -114,12 +114,9 @@ const Aquarium: React.FC<AquariumProps> = ({ device, onLog }) => {
   return (
     <div className="w-full px-2 lg:px-4 pb-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-
-        <DeviceGroup title="Lights">
+        
           <AquaCard title={aquaLight.name} icon="💡" status={aquaLight.status} setStatus={(val: boolean) => handleToggle("eb7808944838719ea1yctc", val, setAquaLight, aquaLight)} />
-          <AquaCard title={aquaLight2.name} icon="💡" status={aquaLight2.status} setStatus={(val: boolean) => handleToggle("ebef989f18f6b4123bmqix", val, setAquaLight2, aquaLight2)} />
-        </DeviceGroup>
-
+          <AquaCard title={aquaLight2.name} icon="💡" status={aquaLight2.status} setStatus={(val: boolean) => handleToggle("ebef989f18f6b4123bmqix", val, setAquaLight2, aquaLight2)} />      
         <AquaCard title={heater.name} icon="🌡️" status={heater.status} setStatus={(val: boolean) => handleToggle("eb4a8281458f2a33f0g2tv", val, setHeater, heater)} subtext={heater.status ? "Warming" : "Standby"} energy="100W" />
         <AquaCard title={filter.name} icon="🌀" status={filter.status} setStatus={(val: boolean) => handleToggle("ebe9d4b02cca4e57ddhwwv", val, setFilter, filter)} energy="25W" />
         <AquaCard title={pump.name} icon="💧" status={pump.status} setStatus={(val: boolean) => handleToggle("ebf7e89f76b6c51114f2ci", val, setPump, pump)} energy="12W" />
