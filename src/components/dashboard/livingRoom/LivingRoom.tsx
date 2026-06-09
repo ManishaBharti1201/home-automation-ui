@@ -3,6 +3,7 @@ import axios from "axios";
 import SpeedCard from "./SpeedCard";
 import Recycle from "./Recycle";
 import CameraCard from "./CameraCard";
+import { Fan , Snowflake, Flame, Zap, Settings, Menu, ChevronUp, ChevronDown, FanIcon } from "lucide-react";
 
 interface LivingRoomProps {
   isDarkMode: boolean;
@@ -44,6 +45,10 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
   const [isCameraMaximized, setIsCameraMaximized] = useState(false);
   const [isStreamActive, setIsStreamActive] = useState(false);
   const prevCameraStatus = useRef(false);
+
+  const [thermostatMode, setThermostatMode] = useState<"heat" | "cool" | "auto">("auto");
+  const [isFanRunning, setIsFanRunning] = useState(true);
+  const [targetTemp, setTargetTemp] = useState(68);
 
   const [trashRecycleData] = useState({
     trash: { pickUpDate: "Tomorrow", lastPickUp: "Mon", lastStatus: "Success" },
@@ -383,6 +388,75 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
               </div>
             </div>
           </div> {/* This closes the camera's outer div */}
+
+        <div className="thermostat-card relative p-6 bg-slate-900/60 backdrop-blur-2xl border-2 border-white/10 rounded-[2.5rem] shadow-2xl min-h-[220px] flex flex-col justify-between overflow-hidden">
+          {/* Dynamic Background Glow based on mode */}
+          <div className={`absolute -right-10 -top-10 w-40 h-40 blur-[80px] rounded-full opacity-10 pointer-events-none transition-colors duration-1000 ${
+            thermostatMode === 'cool' ? 'bg-cyan-500' : thermostatMode === 'heat' ? 'bg-orange-500' : 'bg-purple-500'
+          }`} />
+
+          <div className="flex justify-between items-center relative z-10">
+            {/* Left Side: Modes & Settings */}
+            <div className="flex flex-col gap-5">
+              <div className="text-white/40 hover:text-white transition-colors cursor-pointer">
+                <Settings size={20} />
+              </div>
+              <div 
+                className="cursor-pointer transition-transform active:scale-90"
+                onClick={() => {
+                  const modes: ("heat" | "cool" | "auto")[] = ["cool", "heat", "auto"];
+                  setThermostatMode(modes[(modes.indexOf(thermostatMode) + 1) % modes.length]);
+                }}
+              >
+                {thermostatMode === 'cool' && <Snowflake className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" size={24} />}
+                {thermostatMode === 'heat' && <Flame className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" size={24} />}
+                {thermostatMode === 'auto' && <Zap className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" size={24} />}
+              </div>
+              <div className="text-white/40 hover:text-white transition-colors cursor-pointer">
+                <Menu size={20} />
+              </div>
+            </div>
+
+            {/* Center: Main Temp Display */}
+            <div className="text-center flex flex-col items-center justify-center flex-1">
+              <div
+                className={`transition-all duration-700 cursor-pointer mb-2 ${
+                  isFanRunning 
+                    ? thermostatMode === 'cool' ? "text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.4)]" 
+                      : thermostatMode === 'heat' ? "text-orange-500 drop-shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                      : "text-purple-400 drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                    : "text-white/10"
+                }`}
+                onClick={() => setIsFanRunning(!isFanRunning)}
+              >
+                <Fan size={44} strokeWidth={1} className={isFanRunning ? "animate-[spin_1s_linear_infinite]" : ""} />
+              </div>
+              <div className="relative">
+                <span className="text-7xl font-black italic tracking-tighter text-white drop-shadow-2xl">78</span>
+                <span className={`absolute -top-1 -right-4 text-2xl font-black italic transition-colors duration-500 ${thermostatMode === 'cool' ? 'text-cyan-400/60' : thermostatMode === 'heat' ? 'text-orange-500/60' : 'text-purple-400/60'}`}>°</span>
+              </div>
+            </div>
+
+            {/* Right Side: Adjusters */}
+            <div className="flex flex-col items-center gap-2">
+              <button onClick={() => setTargetTemp(t => t + 1)} className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all active:scale-90">
+                <ChevronUp size={24} />
+              </button>
+              <div className={`bg-slate-800/80 rounded-2xl w-14 h-14 flex flex-col items-center justify-center border-2 transition-all duration-500 shadow-lg ${
+                thermostatMode === 'cool' ? 'border-cyan-500/50' : thermostatMode === 'heat' ? 'border-orange-500/50' : 'border-purple-500/50'
+              }`}>
+                <span className={`text-xl font-black italic leading-none transition-colors duration-500 ${thermostatMode === 'cool' ? 'text-cyan-400' : thermostatMode === 'heat' ? 'text-orange-500' : 'text-purple-400'}`}>{targetTemp}</span>
+              </div>
+              <button onClick={() => setTargetTemp(t => t - 1)} className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all active:scale-90">
+                <ChevronDown size={24} />
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 p-3 bg-white/10 border border-white/10 rounded-2xl flex justify-between items-center text-[15px] font-black text-white/90 uppercase tracking-[0.2em] relative z-10">
+            <span className="flex items-center gap-2"><span className="text-xs">🕒</span> Hold Until 6:00 AM</span>            
+          </div>
+        </div>
         
         <DeviceCard
           title={garageDoor.name}
@@ -484,6 +558,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
