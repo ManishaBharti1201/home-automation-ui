@@ -3,6 +3,7 @@ import axios from "axios";
 import Dashboard from "./Dashboard"; 
 import Weather from "./dashboard/Weather";
 import { LogEntry } from "./dashboard/Logs";
+import { weatherCodeMapping } from "../api/weatherMapping";
 
 const weatherVideos = {
   sunny: "/weather/sunny.mp4",
@@ -159,6 +160,24 @@ const Home: React.FC = () => {
     }
   }, [weatherCode]);
 
+  useEffect(() => {
+    // Log whenever the weather code changes from the default "0" (likely from API call)
+    if (weatherCode !== "0") {
+      const condition = weatherCodeMapping[weatherCode]?.description || 'Clear';
+      addLog('SYSTEM', 'Weather Video Selected', `${condition} | Path: ${currentVideo}`);
+    }
+  }, [currentVideo, weatherCode, addLog]);
+
+  // Explicitly trigger playback when the video source changes
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true; // Extra insurance for Autoplay
+      videoRef.current.play().catch((err) => {
+        console.warn("Video playback failed on source change:", err);
+      });
+    }
+  }, [currentVideo]);
+
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return "GOOD MORNING";
@@ -178,7 +197,7 @@ const Home: React.FC = () => {
 
   return (
     // Base background is now a solid, stable dark color
-    <div className="min-h-screen flex flex-col font-sans bg-[#0f172a] text-white antialiased">
+    <div className="min-h-screen flex flex-col font-sans bg-black text-white antialiased">
       
       {/* 1. HEADER WITH SCOPED VIDEO */}
       <header className="w-full p-3 shrink-0 relative overflow-hidden h-[120px] md:h-[140px]">
@@ -196,9 +215,6 @@ const Home: React.FC = () => {
             }}
             className="w-full h-full object-cover"        
           />
-          {/* Blur helps blend the bottom of the header into the solid body */}
-          {/* <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-[#0a0a0b]" /> */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0f172a]" />
         </div>
 
         {/* HEADER CONTENT LAYER */}
@@ -216,7 +232,7 @@ const Home: React.FC = () => {
             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter italic uppercase text-white">
               {greeting} Bhanu & Family
             </h1>
-            <span className="text-[16px] font-black tracking-[0.5em] text-white/80 uppercase"> {currentDate}</span>
+            <span className="text-[16px] font-black tracking-[0.5em] text-white uppercase"> {currentDate}</span>
           </div>
 
           {/* RIGHT: SYSTEM STATUS */}

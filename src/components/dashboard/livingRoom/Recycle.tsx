@@ -11,8 +11,8 @@ const ServiceCard: React.FC<ServiceProps> = ({ data, type }) => {
     
     // Updated themes to match the elevated Slate/Cyan/Indigo palette
     const cardStyle = isTrash 
-        ? "bg-slate-900/60 border-indigo-500/40 shadow-[0_20px_50px_rgba(99,102,241,0.1)]" 
-        : "bg-slate-900/60 border-cyan-500/40 shadow-[0_20px_50px_rgba(6,182,212,0.1)]";
+        ? "bg-black border-indigo-500 shadow-2xl" 
+        : "bg-black border-cyan-500 shadow-2xl";
 
     const badgeStyle = isTrash 
         ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]" 
@@ -63,14 +63,14 @@ const ServiceCard: React.FC<ServiceProps> = ({ data, type }) => {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                     <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isTrash ? 'bg-indigo-400' : 'bg-cyan-400'}`} />
-                    <div className={`text-[11px] font-bold uppercase tracking-widest ${isTrash ? 'text-indigo-300/90' : 'text-cyan-300/90'}`}>
+                    <div className={`text-[11px] font-bold uppercase tracking-widest ${isTrash ? 'text-indigo-300' : 'text-cyan-300'}`}>
                         Pickup: {data?.pickUpDate || "No Schedule"}
                     </div>
                 </div>
             </div>
 
             {/* STATUS TAG */}
-            <div className="absolute right-6 bottom-6 text-[9px] font-black text-white/20 uppercase italic tracking-tighter">
+            <div className="absolute right-6 bottom-6 text-[9px] font-black text-white/50 uppercase italic tracking-tighter">
                 {data?.lastStatus || "Status OK"}
             </div>
 

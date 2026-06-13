@@ -3,7 +3,7 @@ import axios from "axios";
 import SpeedCard from "./SpeedCard";
 import Recycle from "./Recycle";
 import CameraCard from "./CameraCard";
-import { Fan , Snowflake, Flame, Zap, Settings, Menu, ChevronUp, ChevronDown, FanIcon } from "lucide-react";
+import { Fan, Snowflake, Flame, Zap, Settings, Menu, ChevronUp, ChevronDown, Droplets, Lightbulb, DoorOpen, Warehouse, Bot, Sparkles, Waves } from "lucide-react";
 
 interface LivingRoomProps {
   isDarkMode: boolean;
@@ -49,6 +49,10 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
   const [thermostatMode, setThermostatMode] = useState<"heat" | "cool" | "auto">("auto");
   const [isFanRunning, setIsFanRunning] = useState(true);
   const [targetTemp, setTargetTemp] = useState(68);
+  const [heatSetTemp, setHeatSetTemp] = useState(68);
+  const [coolSetTemp, setCoolSetTemp] = useState(72);
+  const [currentTemp, setCurrentTemp] = useState(78);
+  const [humidity, setHumidity] = useState(45);
 
   const [trashRecycleData] = useState({
     trash: { pickUpDate: "Tomorrow", lastPickUp: "Mon", lastStatus: "Success" },
@@ -116,6 +120,62 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
         if (devId === "04348481600194f74f53") mapState(setGarage2, "Garage 2");
         if (devId === "ebace458dfa30f1a28ouzo")
           mapState(setPujaLight, "Puja Light");
+
+        if (devId === "ebbf791d405b9f99eb72z6") {
+          const raw = update.rawStatus || [];
+
+          // Handle Humidity
+          const h = raw.find((s: any) => s.code === 'humidity_current')?.value;
+          if (h !== undefined) setHumidity(h);
+
+          // Handle Current Temperature (Prefer Fahrenheit if available)
+          const tempF = raw.find((s: any) => s.code === 'temp_current_f')?.value;
+          const tempC = raw.find((s: any) => s.code === 'temp_current')?.value;
+          const curT = tempF !== undefined ? tempF : tempC;
+
+          // Handle Heat and Cool Setpoints individually
+          const heatVal = raw.find((s: any) => s.code === 'heat_temp_set_f')?.value || 
+                          raw.find((s: any) => s.code === 'heat_temp_set')?.value;
+          const coolVal = raw.find((s: any) => s.code === 'cool_temp_set_f')?.value || 
+                          raw.find((s: any) => s.code === 'cool_temp_set')?.value;
+          const genericSetPoint = raw.find((s: any) => s.code === 'temp_set')?.value;
+
+          const mode = raw.find((s: any) => s.code === 'mode')?.value;
+          const fan = raw.find((s: any) => s.code === 'fan_speed_enum')?.value;
+
+          const normalize = (v: number) => v > 500 ? Math.round(v / 100) : v > 150 ? Math.round(v / 10) : v;
+
+          if (curT !== undefined) {
+            setCurrentTemp(normalize(curT));
+          }
+
+          if (heatVal !== undefined) setHeatSetTemp(normalize(heatVal));
+          if (coolVal !== undefined) setCoolSetTemp(normalize(coolVal));
+          
+          // Logic for the adjuster target: prioritize mode-specific setpoint
+          const activeSetPoint = (mode === 'heat' ? heatVal : mode === 'cool' ? coolVal : genericSetPoint || heatVal || coolVal);
+          if (activeSetPoint !== undefined) {
+            setTargetTemp(normalize(activeSetPoint));
+          }
+
+          if (mode !== undefined) setThermostatMode(mode);
+          if (fan !== undefined) setIsFanRunning(fan !== 'off');
+
+          // Automation: Turn off fan if current temp equals set temp
+          const checkTemp = curT !== undefined ? normalize(curT) : currentTemp;
+          const checkTarget = activeSetPoint !== undefined ? normalize(activeSetPoint) : targetTemp;
+          const checkFan = fan !== undefined ? fan !== 'off' : isFanRunning;
+
+          if (checkFan && checkTemp === checkTarget) {
+            onLog?.("SYSTEM", "Thermostat Automation", `Target ${checkTarget}° reached. Turning off fan.`);
+            axios.post(`${GATEWAY_URL}/api/device/control`, {
+              deviceId: "ebbf791d405b9f99eb72z6",
+              code: "fan_speed_enum",
+              value: false,
+            }).catch((err) => console.error("Auto fan-off failed:", err));
+          }
+        }
+
         if (devId === "eb983962fe625a3cecm94t")
           mapState(setFountain, "Fountain");
         if (devId === "robo-vac") mapState(setRoboVac, "Robo Vacuum");
@@ -165,15 +225,15 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
       onClick={() => setStatus(!status)}
       className={`
         relative flex flex-col justify-between p-6 cursor-pointer ${isBlinking ? "animate-pulse" : ""}
-        backdrop-blur-2xl border-2 rounded-[2.5rem] overflow-hidden transition-all duration-500
+        border-2 rounded-[2.5rem] overflow-hidden transition-all duration-500
         ${
           isDoor
             ? status
-              ? "bg-slate-900/60 border-red-500/40 shadow-[0_20px_50px_rgba(239,68,68,0.15)] min-h-[190px]"
-            : "bg-slate-900/60 border-indigo-500/20 shadow-[0_20px_50px_rgba(99,102,241,0.15)] min-h-[190px]"
+              ? "bg-black border-red-500 shadow-[0_0_60px_rgba(239,68,68,0.3)] min-h-[190px]"
+            : "bg-black border-indigo-500/50 shadow-2xl min-h-[190px]"
             : status
-              ? "bg-cyan-500/10 border-cyan-400/50 shadow-[0_0_40px_rgba(6,182,212,0.1)] min-h-[180px]"
-              : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 shadow-2xl min-h-[180px]"
+              ? "bg-black border-cyan-400 shadow-[0_0_60px_rgba(6,182,212,0.3)] min-h-[180px]"
+              : "bg-black border-white/30 hover:border-white/50 shadow-2xl min-h-[180px]"
         }
       `}
     >
@@ -235,7 +295,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
       <div className="mt-4 relative z-10">
         <div
           className={`font-black ${isDoor ? "text-2xl leading-tight italic uppercase tracking-tighter drop-shadow-sm" : "text-xl leading-tight uppercase tracking-tight"} transition-colors duration-300 ${
-            status ? "text-white" : "text-white/60"
+            "text-white"
           }`}
         >
           {title}
@@ -245,7 +305,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
             className={`w-1.5 h-1.5 rounded-full ${isDoor ? "animate-pulse" : ""} ${status ? "bg-red-500" : isDoor ? "bg-indigo-400" : "bg-slate-600"}`}
           />
           <div
-            className={`font-bold uppercase tracking-widest ${isDoor ? `text-[11px] ${status ? "text-red-400/90" : "text-indigo-300/90"}` : "text-xs text-white/20"}`}
+            className={`font-bold uppercase tracking-widest ${isDoor ? `text-[11px] ${status ? "text-red-400" : "text-indigo-300"}` : "text-xs text-white"}`}
           >
             {isDoor
               ? status
@@ -267,7 +327,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
 
       {/* ENERGY TAG */}
       {energy && (
-        <div className="absolute right-6 bottom-6 text-[9px] font-black text-white/10 uppercase italic tracking-tighter">
+        <div className="absolute right-6 bottom-6 text-[9px] font-black text-white/50 uppercase italic tracking-tighter">
           {energy}
         </div>
       )}
@@ -282,8 +342,8 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
     children: React.ReactNode;
   }) => (
     // Slightly lighter background for the group container to separate it from the main floor
-    <div className="bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/5 shadow-2xl">
-      <p className="text-lg uppercase font-black tracking-[0.3em] text-cyan-400/60 ml-2 mb-4 italic">
+    <div className="bg-black/20 backdrop-blur-3xl p-5 rounded-[2.5rem] border border-white/10 shadow-inner">
+      <p className="text-lg uppercase font-black tracking-[0.3em] text-cyan-400 ml-2 mb-4 italic">
         {title}
       </p>
       <div className="grid grid-cols-2 gap-4">{children}</div>
@@ -291,15 +351,14 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
   );
 
   return (
-    // Ensure the main container is dark but not pure black to allow shadows to work
-    <div className="w-full min-h-screen bg-transparent px-2 lg:px-4 pt-2 pb-10">
+    <div className="w-full min-h-screen bg-white/20 backdrop-blur-3xl rounded-[3rem] px-4 py-8 border border-white/20 shadow-2xl mt-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <SpeedCard onLog={onLog} />
 
         <DeviceGroup title="Garden Lights">
           <DeviceCard
             title={garden1.name}
-            icon="💡"
+            icon={<Lightbulb size={32} />}
             status={garden1.status}
             setStatus={(val: boolean) =>
               handleToggle("eba76027112512d0c4yste", val, setGarden1, garden1)
@@ -307,7 +366,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
           />
           <DeviceCard
             title={garden2.name}
-            icon="💡"
+            icon={<Lightbulb size={32} />}
             status={garden2.status}
             setStatus={(val: boolean) =>
               handleToggle("ebe76b7ca03fe085c2tfum", val, setGarden2, garden2)
@@ -318,7 +377,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
         <DeviceGroup title="Garage Lights">
           <DeviceCard
             title={garage1.name}
-            icon="💡"
+            icon={<Lightbulb size={32} />}
             status={garage1.status}
             setStatus={(val: boolean) =>
               handleToggle(
@@ -332,7 +391,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
           />
           <DeviceCard
             title={garage2.name}
-            icon="💡"
+            icon={<Lightbulb size={32} />}
             status={garage2.status}
             setStatus={(val: boolean) =>
               handleToggle(
@@ -350,12 +409,12 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
 
         <div className="col-span-1">
           <div className="flex justify-between items-center mb-4 italic">
-            <p className="text-sm uppercase font-black tracking-[0.3em] text-cyan-400/60 ml-2">
+            <p className="text-sm uppercase font-black tracking-[0.3em] text-cyan-400 ml-2">
               {camera.name}
             </p>
             <div className="flex items-center gap-2 mr-2">
               <div className={`w-1.5 h-1.5 rounded-full ${isStreamActive ? "bg-cyan-400 animate-pulse" : "bg-red-500"}`} />
-              <span className="text-[11px] font-bold text-white/70 uppercase tracking-widest">
+              <span className="text-[11px] font-bold text-white uppercase tracking-widest">
                 {isStreamActive ? "Live" : "Offline"}
               </span>
             </div>
@@ -389,78 +448,45 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
             </div>
           </div> {/* This closes the camera's outer div */}
 
-        <div className="thermostat-card relative p-6 bg-slate-900/60 backdrop-blur-2xl border-2 border-white/10 rounded-[2.5rem] shadow-2xl min-h-[220px] flex flex-col justify-between overflow-hidden">
+        <div className="thermostat-card relative p-6 bg-black border-2 border-white/30 rounded-[2.5rem] shadow-2xl min-h-[220px] flex items-center justify-center overflow-hidden">
           {/* Dynamic Background Glow based on mode */}
-          <div className={`absolute -right-10 -top-10 w-40 h-40 blur-[80px] rounded-full opacity-10 pointer-events-none transition-colors duration-1000 ${
+          <div className={`absolute inset-0 blur-[80px] rounded-full opacity-10 pointer-events-none transition-colors duration-1000 ${
             thermostatMode === 'cool' ? 'bg-cyan-500' : thermostatMode === 'heat' ? 'bg-orange-500' : 'bg-purple-500'
           }`} />
 
-          <div className="flex justify-between items-center relative z-10">
-            {/* Left Side: Modes & Settings */}
-            <div className="flex flex-col gap-5">
-              <div className="text-white/40 hover:text-white transition-colors cursor-pointer">
-                <Settings size={20} />
-              </div>
-              <div 
-                className="cursor-pointer transition-transform active:scale-90"
-                onClick={() => {
-                  const modes: ("heat" | "cool" | "auto")[] = ["cool", "heat", "auto"];
-                  setThermostatMode(modes[(modes.indexOf(thermostatMode) + 1) % modes.length]);
-                }}
-              >
-                {thermostatMode === 'cool' && <Snowflake className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" size={24} />}
-                {thermostatMode === 'heat' && <Flame className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" size={24} />}
-                {thermostatMode === 'auto' && <Zap className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" size={24} />}
-              </div>
-              <div className="text-white/40 hover:text-white transition-colors cursor-pointer">
-                <Menu size={20} />
-              </div>
-            </div>
-
-            {/* Center: Main Temp Display */}
-            <div className="text-center flex flex-col items-center justify-center flex-1">
+          <div className="flex items-center justify-center gap-12 relative z-10 w-full px-2">
+            <div className="text-center flex flex-col items-center justify-center">
+              {/* Animated Fan Indicator */}
               <div
-                className={`transition-all duration-700 cursor-pointer mb-2 ${
+                className={`mb-2 transition-all duration-1000 ${
                   isFanRunning 
-                    ? thermostatMode === 'cool' ? "text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.4)]" 
-                      : thermostatMode === 'heat' ? "text-orange-500 drop-shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-                      : "text-purple-400 drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-                    : "text-white/10"
+                    ? thermostatMode === 'cool' ? "text-cyan-100 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]" 
+                      : thermostatMode === 'heat' ? "text-orange-100 drop-shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                      : "text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                    : "text-white/5"
                 }`}
-                onClick={() => setIsFanRunning(!isFanRunning)}
               >
-                <Fan size={44} strokeWidth={1} className={isFanRunning ? "animate-[spin_1s_linear_infinite]" : ""} />
+                <Fan size={44} strokeWidth={1} className={isFanRunning ? "animate-[spin_2s_linear_infinite]" : ""} />
               </div>
+              
               <div className="relative">
-                <span className="text-7xl font-black italic tracking-tighter text-white drop-shadow-2xl">78</span>
-                <span className={`absolute -top-1 -right-4 text-2xl font-black italic transition-colors duration-500 ${thermostatMode === 'cool' ? 'text-cyan-400/60' : thermostatMode === 'heat' ? 'text-orange-500/60' : 'text-purple-400/60'}`}>°</span>
+                <span className="text-8xl font-black italic tracking-tighter text-white drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)] leading-none">{currentTemp}</span>
+                <span className={`absolute top-1 -right-8 text-4xl font-black italic transition-colors duration-500 ${thermostatMode === 'cool' ? 'text-cyan-400/60' : thermostatMode === 'heat' ? 'text-orange-500/60' : 'text-purple-400/60'}`}>°</span>
               </div>
             </div>
 
-            {/* Right Side: Adjusters */}
-            <div className="flex flex-col items-center gap-2">
-              <button onClick={() => setTargetTemp(t => t + 1)} className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all active:scale-90">
-                <ChevronUp size={24} />
-              </button>
-              <div className={`bg-slate-800/80 rounded-2xl w-14 h-14 flex flex-col items-center justify-center border-2 transition-all duration-500 shadow-lg ${
-                thermostatMode === 'cool' ? 'border-cyan-500/50' : thermostatMode === 'heat' ? 'border-orange-500/50' : 'border-purple-500/50'
-              }`}>
-                <span className={`text-xl font-black italic leading-none transition-colors duration-500 ${thermostatMode === 'cool' ? 'text-cyan-400' : thermostatMode === 'heat' ? 'text-orange-500' : 'text-purple-400'}`}>{targetTemp}</span>
-              </div>
-              <button onClick={() => setTargetTemp(t => t - 1)} className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all active:scale-90">
-                <ChevronDown size={24} />
-              </button>
+            {/* Setpoints (Right Side) */}
+            <div className="flex flex-col gap-4">
+              <span className="text-5xl font-black text-orange-500 italic leading-none">{heatSetTemp}°</span>
+              <span className="text-5xl font-black text-cyan-400 italic leading-none">{coolSetTemp}°</span>
             </div>
-          </div>
-
-          <div className="mt-6 p-3 bg-white/10 border border-white/10 rounded-2xl flex justify-between items-center text-[15px] font-black text-white/90 uppercase tracking-[0.2em] relative z-10">
-            <span className="flex items-center gap-2"><span className="text-xs">🕒</span> Hold Until 6:00 AM</span>            
           </div>
         </div>
+                
         
         <DeviceCard
           title={garageDoor.name}
-          icon="🚗"
+          icon={<Warehouse size={32} />}
           status={garageDoor.status}
           setStatus={(val: boolean) =>
             handleToggle(
@@ -478,7 +504,7 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
 
         <DeviceCard
           title={mainDoor.name}
-          icon="🚪"
+          icon={<DoorOpen size={32} />}
           status={mainDoor.status}
           setStatus={(val: boolean) =>
             handleToggle("ebfd63f8defd4c8952ecyt", val, setMainDoor, mainDoor)
@@ -489,17 +515,8 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
         />
 
         <DeviceCard
-          title={roboVac.name}
-          icon="🧹"
-          status={roboVac.status}
-          setStatus={(val: boolean) =>
-            handleToggle("robo-vac", val, setRoboVac, roboVac)
-          }
-          energy="1.2KW"
-        />
-        <DeviceCard
           title={pujaLight.name}
-          icon="🪔"
+          icon={<Sparkles size={32} />}
           status={pujaLight.status}
           setStatus={(val: boolean) =>
             handleToggle("ebace458dfa30f1a28ouzo", val, setPujaLight, pujaLight)
@@ -507,27 +524,12 @@ const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
         />
         <DeviceCard
           title={fountain.name}
-          icon="💦"
+          icon={<Waves size={32} />}
           status={fountain.status}
           setStatus={(val: boolean) =>
             handleToggle("eb983962fe625a3cecm94t", val, setFountain, fountain)
           }
           energy="2.0KW"
-        />
-        <Recycle
-          data={{
-            pickUpDate: trashRecycleData.trash.pickUpDate,
-            lastStatus: trashRecycleData.trash.lastStatus,
-          }}
-          type={"trash"}
-        />
-
-        <Recycle
-          data={{
-            pickUpDate: trashRecycleData.recycle.pickUpDate,
-            lastStatus: trashRecycleData.recycle.lastStatus,
-          }}
-          type={"recycle"}
         />
       </div> {/* This closes the main grid div */}
 

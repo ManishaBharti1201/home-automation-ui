@@ -49,8 +49,8 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ onLog }) => {
 
   return (
     <div className={`
-      relative p-6 rounded-[2rem] min-h-[180px] flex flex-col justify-between border-2 backdrop-blur-md
-      ${isOnline ? 'bg-black/40 border-green-500/30 shadow-2xl' : 'bg-red-950/40 border-red-500 shadow-2xl'}
+      relative p-6 rounded-[2rem] min-h-[180px] flex flex-col justify-between border-2
+      ${isOnline ? 'bg-black border-green-500/50 shadow-2xl' : 'bg-black border-red-500 shadow-2xl'}
     `}>
       {/* BACKGROUND GRAPH ANIMATION */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 z-0">
@@ -123,7 +123,7 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ onLog }) => {
         <div className="flex flex-col">
           <span className="text-5xl font-black tracking-tighter italic leading-none text-white drop-shadow-lg">
             {isOnline ? metrics.down : '---'}
-            <span className="text-sm italic font-black text-white/40 ml-2 uppercase">Mbps</span>
+            <span className="text-sm italic font-black text-white/80 ml-2 uppercase">Mbps</span>
           </span>
           <div className="text-[11px] font-black tracking-[0.2em] mt-2 text-cyan-400">
             ↓ DOWNLOAD SPEED
@@ -132,15 +132,15 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ onLog }) => {
 
         <div className="flex flex-col items-end gap-3">
           <div className="text-right">
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Upload</p>
+            <p className="text-[10px] font-black text-white uppercase tracking-widest">Upload</p>
             <p className="text-xl font-black italic text-white leading-none">
-              {isOnline ? metrics.up : '---'} <span className="text-xs text-white/20">Mb/s</span>
+              {isOnline ? metrics.up : '---'} <span className="text-xs text-white/60">Mb/s</span>
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Ping</p>
+            <p className="text-[10px] font-black text-white uppercase tracking-widest">Ping</p>
             <p className={`text-xl font-black italic leading-none ${isOnline ? 'text-green-400' : 'text-red-500'}`}>
-              {isOnline ? metrics.ping : '---'} <span className="text-xs opacity-30">ms</span>
+              {isOnline ? metrics.ping : '---'} <span className="text-xs text-white/60">ms</span>
             </p>
           </div>
         </div>

@@ -51,6 +51,7 @@ const DEVICE_MAP = {
   ebe76b7ca03fe085c2tfum: "Garden 2",
   eb348887c8926694acl2d1: "Garage Door",
   // ebfd63f8defd4c8952ecyt: "Main Door", // u
+  ebbf791d405b9f99eb72z6: "Thermostat",
 };
 
 // Allow overriding the external SSE source via environment variables
@@ -149,6 +150,8 @@ function initExternalSSE() {
                 "ebe76b7ca03fe085c2tfum", // Garden 2
                 "eb348887c8926694acl2d1", // Garage Door
                 "ebfd63f8defd4c8952ecyt", // Main Door
+                "ebace458dfa30f1a28ouzo", // Puja
+                "ebbf791d405b9f99eb72z6", // Thermostat
               ].includes(devId);
 
             console.log(
@@ -167,13 +170,15 @@ function initExternalSSE() {
             // Update the cache with the latest normalized state
             deviceStateCache[devId] = sseData;
             
-            console.log(`[external-sse] Broadcasting to ${clients.length} clients: ${sseData}`);
-            clients.forEach((c) => c.res.write(`data: ${sseData}\n\n`));
+            if (clients.length > 0) {
+              console.log(`[external-sse] Broadcasting update for ${name} to ${clients.length} clients`);
+              clients.forEach((c) => c.res.write(`data: ${sseData}\n\n`));
+            } else {
+              console.log(`[external-sse] Update received for ${name} (Status: ${isOn ? 'ON' : 'OFF'}), but 0 UI clients are connected.`);
+            }
           } catch (e) {
             console.warn("[external-sse] Parse error:", e.message);
           }
-        } else {
-          console.log(`[external-sse] Line ignored. Starts with data? ${trimmed.startsWith("data:")}. Event match? ${currentEvent === "device-update"}`);
         }
       });
     });
@@ -194,21 +199,36 @@ initExternalSSE();
 
 // SSE Endpoint for device updates
 app.get("/api/status-stream", (req, res) => {
+  res.status(200);
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
 
+  const clientId = Date.now();
+  const clientIp = req.ip || req.connection.remoteAddress;
+  console.log(`[gateway] New UI client connected: ${clientId} from ${clientIp}`);
+
+  // Send a comment as a heartbeat immediately
+  res.write(': heartbeat\n\n');
+
+  // Keep-alive interval to prevent connection timeouts (every 15s)
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 15000);
+
   // SYNC ON START: Send all currently cached device states to the new client
-  console.log(`[gateway] Syncing ${Object.keys(deviceStateCache).length} cached states to new client`);
+  console.log(`[gateway] Syncing ${Object.keys(deviceStateCache).length} cached states to client ${clientId}`);
   Object.values(deviceStateCache).forEach((cachedData) => {
     res.write(`data: ${cachedData}\n\n`);
   });
 
-  const clientId = Date.now();
   clients.push({ id: clientId, res });
 
   req.on("close", () => {
+    console.log(`[gateway] Client disconnected: ${clientId}`);
+    clearInterval(heartbeat);
     clients = clients.filter((c) => c.id !== clientId);
   });
 });
@@ -590,7 +610,9 @@ app.get("/api/devices/status", async (req, res) => {
               ].includes(dev.id);
               const isLivingRoom = [
                 "062025582cf432e12b55", "04348481600194f74f53", "eba76027112512d0c4yste", 
-                "eba7ab5c1f6a3c9fabfaox", "ebe76b7ca03fe085c2tfum", "eb348887c8926694acl2d1"
+                "eba7ab5c1f6a3c9fabfaox", "ebe76b7ca03fe085c2tfum", "eb348887c8926694acl2d1",
+                "ebfd63f8defd4c8952ecyt", "ebace458dfa30f1a28ouzo",
+                "ebbf791d405b9f99eb72z6"
               ].includes(dev.id);
 
               const statePayload = {
@@ -600,6 +622,7 @@ app.get("/api/devices/status", async (req, res) => {
                 isOn,
                 isLivingRoom,
                 isAquarium,
+                rawStatus: dev.status,
               };
               // Prime the gateway cache so SSE clients get this immediately on connect
               deviceStateCache[dev.id] = JSON.stringify(statePayload);

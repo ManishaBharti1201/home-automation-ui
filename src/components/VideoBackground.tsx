@@ -28,8 +28,6 @@ const VideoBackground = memo(({ src }: { src: string }) => {
       >
         <source src={src} type="video/mp4" />
       </video>
-      {/* The "Glass Overlay" that aids readability */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-none" />
     </div>
   );
 });

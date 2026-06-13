@@ -22,7 +22,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode, logs, onLog, onClear,
     <div className="relative w-full min-h-screen">
 
       {/* SHADY GLASS: Subtle dark overlay */}
-      <div className="fixed inset-0 -z-10 bg-black/20 backdrop-blur-[12px]" />
+      <div className="fixed inset-0 -z-10 bg-slate-900/40 backdrop-blur-[24px]" />
 
       {/* DEEP VIGNETTE */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-transparent via-transparent to-black/40" />
@@ -30,13 +30,13 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode, logs, onLog, onClear,
       {/* DASHBOARD CONTENT */}
       <div className="relative z-10">
         <div className="flex items-center gap-4 mb-2 overflow-x-auto no-scrollbar">
-          <div className="flex gap-3 p-2 bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl mb-4">
+          <div className="flex gap-3 p-2 bg-black border-2 border-white/20 rounded-[2.5rem] shadow-2xl mb-4">
             {rooms.map((room, index) => (
               <button
                 key={index}
                 onClick={() => setActiveRoom(room)} 
-                className={`px-6 py-3 rounded-[1.2rem] text-sm font-black uppercase tracking-[0.2em] italic transition-none
-                  ${activeRoom === room ? "bg-cyan-500 text-black shadow-lg" : "text-white/40 hover:text-white"}`}
+                className={`px-8 py-3 rounded-[1.8rem] text-sm font-black uppercase tracking-[0.2em] italic transition-all duration-300
+                  ${activeRoom === room ? "bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)]" : "text-white hover:bg-white/10"}`}
               >
                 {room}
               </button>
@@ -46,7 +46,11 @@ const Dashboard: React.FC<DashboardProps> = ({ isDarkMode, logs, onLog, onClear,
 
         <div className="w-full">
           {activeRoom === "Living Room" && <LivingRoom isDarkMode={isDarkMode} device={deviceStates} onLog={onLog} />}
-          {activeRoom === "Aquarium" && <Aquarium device={deviceStates} onLog={onLog} />}
+          {activeRoom === "Aquarium" && (
+            <div className="w-full min-h-screen bg-white/20 backdrop-blur-3xl rounded-[3rem] px-4 py-8 border border-white/20 shadow-2xl mt-4">
+              <Aquarium device={deviceStates} onLog={onLog} />
+            </div>
+          )}
           {activeRoom === "Weather" && <WeatherDetail onLog={onLog} />}
           {activeRoom === "Usage" && <Usage onLog={onLog} />}
           {activeRoom === "Logs" && <Logs logs={logs} onClear={onClear} />}
