@@ -107,35 +107,59 @@ jobs:
           script: |
             mkdir -p ~/docker/home-automation/data/streams
             cd ~/docker/home-automation
-            
-            # Create a combined compose file for UI and Gateway
-            # Note: Gateway port changed to 8081 to avoid Portainer conflict
-            cat << EOF > docker-compose-ui-gateway.yml
-            services:
-              ui:
-                image: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
-                container_name: home-automation-ui
-                ports:
-                  - "3000:80"
-                restart: unless-stopped
-                depends_on:
-                  - gateway
 
-              gateway:
-                image: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
-                container_name: tuya-gateway
-                ports:
-                  - "8081:8000"
-                environment:
-                  - TUYA_CLIENT_ID=${{ secrets.TUYA_CLIENT_ID }}
-                  - TUYA_CLIENT_SECRET=${{ secrets.TUYA_CLIENT_SECRET }}
-                  - TUYA_HOST=openapi.tuyaus.com
-                  - EXTERNAL_SSE_URL=${{ secrets.EXTERNAL_SSE_URL }}
-                  - PORT=8000
-                volumes:
-                  - ./data/streams:/app/streams
-                restart: unless-stopped
-            EOF
+            # If the server already has an existing docker-compose.yml, prefer it.
+            # Remove any generated UI/Gateway compose file to avoid accidental usage.
+            if [ -f docker-compose.yml ]; then
+              echo "Found existing docker-compose.yml on server — using that."
+              # Remove the generated compose if present (prevents it interfering)
+              if [ -f docker-compose-ui-gateway.yml ]; then
+                rm -f docker-compose-ui-gateway.yml || true
+                echo "Removed stale docker-compose-ui-gateway.yml"
+              fi
 
-            docker compose -f docker-compose-ui-gateway.yml pull
-            docker compose -f docker-compose-ui-gateway.yml up -d
+              # Ensure any old UI container/image is removed to avoid stale content
+              docker rm -f home-automation-ui || true
+              docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest || true
+              docker compose -f docker-compose.yml pull || true
+              docker compose -f docker-compose.yml up -d --remove-orphans
+            else
+              echo "No existing docker-compose.yml found — creating docker-compose-ui-gateway.yml"
+              # Create a combined compose file for UI and Gateway
+              # Note: Gateway port changed to 8081 to avoid Portainer conflict
+              cat << EOF > docker-compose-ui-gateway.yml
+              services:
+                ui:
+                  image: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
+                  container_name: home-automation-ui
+                  ports:
+                    - "3000:80"
+                  restart: unless-stopped
+                  depends_on:
+                    - gateway
+
+                gateway:
+                  image: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
+                  container_name: tuya-gateway
+                  ports:
+                    - "8081:8000"
+                  environment:
+                    - TUYA_CLIENT_ID=${{ secrets.TUYA_CLIENT_ID }}
+                    - TUYA_CLIENT_SECRET=${{ secrets.TUYA_CLIENT_SECRET }}
+                    - TUYA_HOST=openapi.tuyaus.com
+                    - EXTERNAL_SSE_URL=${{ secrets.EXTERNAL_SSE_URL }}
+                    - PORT=8000
+                  volumes:
+                    - ./data/streams:/app/streams
+                  restart: unless-stopped
+              EOF
+
+              # Ensure any old UI container/image is removed to avoid stale content
+              docker rm -f home-automation-ui || true
+              docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest || true
+              docker compose -f docker-compose-ui-gateway.yml pull
+              docker compose -f docker-compose-ui-gateway.yml up -d --remove-orphans
+
+              # Clean up generated compose file so it doesn't persist and conflict
+              rm -f docker-compose-ui-gateway.yml || true
+            fi
