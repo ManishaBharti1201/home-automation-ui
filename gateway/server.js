@@ -56,6 +56,7 @@ const DEVICE_MAP = {
 
 // Allow overriding the external SSE source via environment variables
 const EXTERNAL_SSE_URL = process.env.EXTERNAL_SSE_URL || "http://192.168.0.197:8080//sse/devices/updates";
+const EXTERNAL_SSE_URL = process.env.EXTERNAL_SSE_URL || "http://192.168.0.197:8080/sse/devices/updates";
 
 /**
  * Normalizes device status values to a boolean (ON/OFF).
