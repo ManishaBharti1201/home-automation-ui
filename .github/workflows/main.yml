@@ -22,12 +22,19 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push UI image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
+
+      - name: Build and push Gateway image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./gateway
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
 
   deploy:
     needs: build-and-push
