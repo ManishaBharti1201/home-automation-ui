@@ -15,7 +15,7 @@ interface LivingRoomProps {
   ) => void;
 }
 
-const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
+const GATEWAY_URL = "http://192.168.0.197:8081";
 
 const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
   const [mainDoor, setMainDoor] = useState({

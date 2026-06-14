@@ -21,7 +21,7 @@ const weatherVideos = {
 };
 
 // Hardcoded Gateway URL
-const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
+const GATEWAY_URL = "http://192.168.0.197:8081";
 
 const Home: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);

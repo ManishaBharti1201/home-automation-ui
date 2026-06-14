@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Lightbulb, Thermometer, Wind, Droplets, AlertTriangle, Soup } from "lucide-react";
 
-const GATEWAY_URL = "http://homelab.tail1ccd16.ts.net:8081";
+const GATEWAY_URL = "http://192.168.0.197:8081";
 
 interface AquariumProps {
   device: any;
