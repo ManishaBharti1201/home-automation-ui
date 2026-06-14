@@ -152,7 +152,7 @@ jobs:
                   volumes:
                     - ./data/streams:/app/streams
                   restart: unless-stopped
-              EOF
+            EOF
 
               # Ensure any old UI container/image is removed to avoid stale content
               docker rm -f home-automation-ui || true
