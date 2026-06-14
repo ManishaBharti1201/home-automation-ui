@@ -44,7 +44,6 @@ jobs:
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
-            sudo docker stop home-automation-ui || true
-            sudo docker rm home-automation-ui || true
-            sudo docker run -d --name home-automation-ui -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
+            cd ~/docker/home-automation
+            docker-compose pull
+            docker-compose up -d --remove-orphans
