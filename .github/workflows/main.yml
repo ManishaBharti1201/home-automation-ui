@@ -91,13 +91,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
-          tags: tag:ci
-
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -121,7 +114,7 @@ jobs:
               # Ensure any old UI container/image is removed to avoid stale content
               docker rm -f home-automation-ui || true
               docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest || true
-              docker compose -f docker-compose.yml pull || true
+              docker compose -f docker-compose.yml pull
               docker compose -f docker-compose.yml up -d --remove-orphans
             else
               echo "No existing docker-compose.yml found — creating docker-compose-ui-gateway.yml"
@@ -157,8 +150,9 @@ jobs:
               # Ensure any old UI container/image is removed to avoid stale content
               docker rm -f home-automation-ui || true
               docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest || true
+              # Pull first to ensure we have the images before stopping anything
               docker compose -f docker-compose-ui-gateway.yml pull
-              docker compose -f docker-compose-ui-gateway.yml up -d --remove-orphans
+              docker compose -f docker-compose-ui-gateway.yml up -d
 
               # Clean up generated compose file so it doesn't persist and conflict
               rm -f docker-compose-ui-gateway.yml || true
