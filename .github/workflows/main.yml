@@ -2,158 +2,50 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          lfs: true
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Gateway
-        uses: docker/build-push-action@v5
-        with:
-          context: ./gateway
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
-
-      - name: Build and Push UI
-        uses: docker/build-push-action@v5
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
 
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Web Assets
-        # CI=false prevents ESLint warnings from failing the build
-        run: CI=false npm run build 
-
-      - name: Install Capacitor CLI
-        run: npm install @capacitor/cli @capacitor/android
-
-      - name: Add Android Platform
-        run: npx cap add android || echo "Android platform already exists..."
-
-      - name: Capacitor Sync
-        run: npx cap sync android
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '21'
-          cache: 'gradle'
-          cache-dependency-path: 'android/**/*.gradle*'
-
-      - name: Build Android APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: home-automation-ui-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
-
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
 
       - name: Deploy to VM via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VM_IP }}
-          username: ${{ secrets.VM_USER }}
-          password: ${{ secrets.VM_PASSWORD }}
+          host: 100.87.196.120   # <-- YOUR VM'S TAILSCALE IP
+          username: homelab
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p ~/docker/home-automation/data/streams
-            cd ~/docker/home-automation
-
-            # If the server already has an existing docker-compose.yml, prefer it.
-            # Remove any generated UI/Gateway compose file to avoid accidental usage.
-            if [ -f docker-compose.yml ]; then
-              echo "Found existing docker-compose.yml on server — using that."
-              # Remove the generated compose if present (prevents it interfering)
-              if [ -f docker-compose-ui-gateway.yml ]; then
-                rm -f docker-compose-ui-gateway.yml || true
-                echo "Removed stale docker-compose-ui-gateway.yml"
-              fi
-
-              # Ensure any old UI container/image is removed to avoid stale content
-              docker rm -f home-automation-ui || true
-              docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest || true
-              docker compose -f docker-compose.yml pull
-              docker compose -f docker-compose.yml up -d --remove-orphans
-            else
-              echo "No existing docker-compose.yml found — creating docker-compose-ui-gateway.yml"
-              # Create a combined compose file for UI and Gateway
-              # Note: Gateway port changed to 8081 to avoid Portainer conflict
-              cat << EOF > docker-compose-ui-gateway.yml
-              services:
-                ui:
-                  image: ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest
-                  container_name: home-automation-ui
-                  ports:
-                    - "3000:80"
-                  restart: unless-stopped
-                  depends_on:
-                    - gateway
-
-                gateway:
-                  image: ${{ secrets.DOCKERHUB_USERNAME }}/tuya-gateway:latest
-                  container_name: tuya-gateway
-                  ports:
-                    - "8081:8000"
-                  environment:
-                    - TUYA_CLIENT_ID=${{ secrets.TUYA_CLIENT_ID }}
-                    - TUYA_CLIENT_SECRET=${{ secrets.TUYA_CLIENT_SECRET }}
-                    - TUYA_HOST=openapi.tuyaus.com
-                    - EXTERNAL_SSE_URL=${{ secrets.EXTERNAL_SSE_URL }}
-                    - PORT=8000
-                  volumes:
-                    - ./data/streams:/app/streams
-                  restart: unless-stopped
-            EOF
-
-              # Ensure any old UI container/image is removed to avoid stale content
-              docker rm -f home-automation-ui || true
-              docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/home-automation-ui:latest || true
-              # Pull first to ensure we have the images before stopping anything
-              docker compose -f docker-compose-ui-gateway.yml pull
-              docker compose -f docker-compose-ui-gateway.yml up -d
-
-              # Clean up generated compose file so it doesn't persist and conflict
-              rm -f docker-compose-ui-gateway.yml || true
-            fi
+            cd /home/homelab/home-automation-ui
+            docker compose pull
+            docker compose up -d --remove-orphans
