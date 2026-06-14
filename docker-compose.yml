@@ -14,7 +14,7 @@ services:
     image: bhanuchandra2010/tuya-gateway:latest
     container_name: tuya-gateway
     ports:
-      - "8000:8000"
+      - "8081:8000"
     environment:
       - TUYA_CLIENT_ID=${TUYA_CLIENT_ID}
       - TUYA_CLIENT_SECRET=${TUYA_CLIENT_SECRET}
