@@ -4,6 +4,7 @@ import SpeedCard from "./SpeedCard";
 import Recycle from "./Recycle";
 import CameraCard from "./CameraCard";
 import { Fan, Snowflake, Flame, Zap, Settings, Menu, ChevronUp, ChevronDown, Droplets, Lightbulb, DoorOpen, Warehouse, Bot, Sparkles, Waves } from "lucide-react";
+import { getGatewayUrl } from '../../../config';
 
 interface LivingRoomProps {
   isDarkMode: boolean;
@@ -15,7 +16,7 @@ interface LivingRoomProps {
   ) => void;
 }
 
-const GATEWAY_URL = "http://192.168.0.197:8081";
+const GATEWAY_URL = getGatewayUrl();
 
 const LivingRoom: React.FC<LivingRoomProps> = ({ device, onLog }) => {
   const [mainDoor, setMainDoor] = useState({

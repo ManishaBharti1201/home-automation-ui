@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import axios from 'axios';
+import { getGatewayUrl } from '../../../config';
 
 interface Props {
   id: string; // unique id for stream (used by gateway)
@@ -10,7 +11,7 @@ interface Props {
   onLog?: (type: 'API' | 'UPDATE' | 'SYSTEM' | 'ERROR', message: string, detail?: string) => void;
 }
 
-const DEFAULT_GATEWAY = 'http://192.168.0.197:8081';
+const DEFAULT_GATEWAY = getGatewayUrl();
 
 export default function CameraCard({ id, rtspUrl, gatewayBase = DEFAULT_GATEWAY, onLog, onActive }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);

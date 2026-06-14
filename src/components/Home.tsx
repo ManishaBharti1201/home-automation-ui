@@ -4,6 +4,7 @@ import Dashboard from "./Dashboard";
 import Weather from "./dashboard/Weather";
 import { LogEntry } from "./dashboard/Logs";
 import { weatherCodeMapping } from "../api/weatherMapping";
+import { getGatewayUrl } from "../config";
 
 const weatherVideos = {
   sunny: "/weather/sunny.mp4",
@@ -20,8 +21,8 @@ const weatherVideos = {
   rimeFog: "/weather/rime-fog.mp4",
 };
 
-// Hardcoded Gateway URL
-const GATEWAY_URL = "http://192.168.0.197:8081";
+// Resolve gateway at runtime (supports overrides via meta/localStorage/native)
+const GATEWAY_URL = getGatewayUrl();
 
 const Home: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
